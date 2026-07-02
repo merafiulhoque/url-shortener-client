@@ -12,7 +12,7 @@ FROM node:22-alpine as ClientBuilder
 
 WORKDIR /app
 
-COPY --from=ClientDependencies /apps/node_modules ./node_modules
+COPY --from=ClientDependencies /app/node_modules ./node_modules
 
 COPY . .
 
@@ -26,7 +26,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY --from=ClientBuilder /app/.next ./.next
-COPY --from=ClientBuilder /app/publlic ./public
+COPY --from=ClientBuilder /app/public ./public
 COPY --from=ClientBuilder /app/node_modules ./node_modules
 COPY --from=ClientBuilder /app/package.json ./package.json
 
