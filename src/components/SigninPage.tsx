@@ -46,13 +46,13 @@ export default function SigninPage() {
 
     // 2. POST request to API_URLS.SIGNIN
     try {
-      const response = await fetch(API_URLS.SIGNIN, {
+      
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(validationResult.data),
-      });
-
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify(validationResult.data)
+      })
       const data: { success: boolean; message: string } = await response.json();
 
       if (data.success) {
