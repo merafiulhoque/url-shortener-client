@@ -44,7 +44,7 @@ export default function SigninPage() {
       return;
     }
 
-    // 2. POST request to API_URLS.SIGNIN
+    
     try {
       
       const response = await fetch("/api/auth/login", {

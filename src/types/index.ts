@@ -9,11 +9,10 @@ export interface LoginData {
     password: string
 }
 
-// export interface LoginResponse {
-//     success: boolean
-//     message: string
-
-// }
+export interface JWT_PAYLOAD {
+    id: number
+    email: string
+}
 
 export interface ApiResponse<T>{
     success: boolean

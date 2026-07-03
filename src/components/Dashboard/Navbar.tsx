@@ -22,13 +22,7 @@ export default function Navbar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(API_URLS.GET_USER, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-type": "application/json"
-          }
-        });
+        const response = await fetch("/api/auth/getUser");
         const data = await response.json();
 
         if (data.success && data.data) {

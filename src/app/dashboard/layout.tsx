@@ -1,16 +1,16 @@
 // app/dashboard/layout.tsx
+import { getToken } from "@/actions/getToken";
 import Navbar from "@/components/Dashboard/Navbar";
 import Sidebar from "@/components/Dashboard/Sidebar";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
 
-  const token = (await cookies()).get("token")
+  const token = await getToken()
   if(!token){
     redirect("/signin")
   }
-
+  
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       {/* Navbar sits at the top */}

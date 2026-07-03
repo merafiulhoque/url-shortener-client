@@ -27,13 +27,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUrls = async () => {
       try {
-        const response = await fetch(API_URLS.GET_ALL_SHORT_URLS, {
-          method: "GET",
-          headers: {"Content-type": "application/json"},
-          credentials: "include",
-          cache: "no-cache"
-        });
-        const result: ApiResponse<URLS[] | null> = await response.json();
+        const response = await fetch("/api/url/get-all-url");
+        const result: ApiResponse<URLS[]> = await response.json();
 
         if(!result.success) {
           setError(result.message || "Failed to load URLs.");

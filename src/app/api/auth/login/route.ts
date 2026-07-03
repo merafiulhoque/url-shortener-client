@@ -10,19 +10,21 @@ export async function POST(req: NextRequest) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(LoginData),
         });
-        const responseData: ApiResponse<null> = await response.json()
+        const responseData: ApiResponse<string> = await response.json()
         const res = NextResponse.json({
             success: responseData.success,
             message: responseData.message
         })
-        if(responseData.success && responseData.data) {
-            res.cookies.set("token", responseData.data, {
-                sameSite: "none",
-                secure: process.env.NODE_ENV === "production",
-                httpOnly: true,
-                maxAge: 3600 
-            })
+        if(!responseData.success || !responseData.data) {
+            return res
         }
+        res.cookies.set("token", responseData.data, {
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            maxAge: 3600,
+            path: "/"
+        })
         return res
     } catch (error: any) {
         return NextResponse.json({
