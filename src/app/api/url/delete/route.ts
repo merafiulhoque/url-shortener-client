@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function DELETE(req: NextRequest){
     try {
         const {id} = await req.json()
-        if(id){
+        if(!id){
             return NextResponse.json({
                 success: false, message: "Invalid Request"
             }, {status: 400})
@@ -18,7 +18,9 @@ export async function DELETE(req: NextRequest){
         }
         const ApiResponse = await fetch(API_URLS.DELETE_SHORT_URL, {
             method: "DELETE",
-            headers: { Authorization: `Bearer ${token}`},
+            headers: { 
+                "content-type": "application/json",
+                Authorization: `Bearer ${token}`},
             body: JSON.stringify({id})
         })
         const resData = await ApiResponse.json()

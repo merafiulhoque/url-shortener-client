@@ -15,7 +15,9 @@ export async function POST (req: NextRequest){
         }
         const ApiResponse = await fetch(API_URLS.CREATE_NEW_SHORT_URL, {
             method: "POST",
-            headers: { Authorization:  `Bearer ${token}` },
+            headers: { 
+                "Content-type": "application/json",
+                Authorization:  `Bearer ${token}` },
             body: JSON.stringify({ originalUrl })
         })
         const resData: ApiResponse<URLS> = await ApiResponse.json()
