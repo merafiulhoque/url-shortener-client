@@ -53,7 +53,7 @@ export default function DashboardPage() {
   const handleDeteteUrl = async (id: number) => {
     if(!confirm("Are you sure ??")) return
     try {
-      const ApiResponse = await fetch(API_URLS.DELETE_SHORT_URL, {
+      const ApiResponse = await fetch("api/url/delete", {
         method: "DELETE",
         credentials: "include",
         headers: { "Content-type": "application/json"},

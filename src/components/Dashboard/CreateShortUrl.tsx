@@ -150,7 +150,7 @@ export default function CreateShortUrlPage() {
     setError("")
 
     try {
-      const ApiResponse = await fetch(API_URLS.CREATE_NEW_SHORT_URL, {
+      const ApiResponse = await fetch("/api/url/createShortUrl", {
         method: "POST",
         credentials: "include",
         headers: { "Content-type": "application/json" },
