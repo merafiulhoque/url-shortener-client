@@ -25,4 +25,5 @@ export interface URLS {
     originalUrl: string;
     shortnedUrl: string;
     userId: number;
+    clicks: number;
 }
