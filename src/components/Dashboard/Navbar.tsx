@@ -4,29 +4,36 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { API_URLS } from "@/constants";
-import { UserInfo } from "@/types";
+import { JWT_PAYLOAD, UserInfo } from "@/types";
+import { useAuthStore } from "@/store/authStrore";
+import { useURLStore } from "@/store/urlStore";
 
 
 export default function Navbar() {
   const router = useRouter();
-  
+  const {user, hydrated, signin, signout} = useAuthStore()
+  const {invalidate} = useURLStore()
   // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
   // Ref to handle clicking outside the modal to close it
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch user data on mount
   useEffect(() => {
+    if(!hydrated) return
+    if (user){
+      setIsLoading(false)
+      return
+    }
+
     const fetchUser = async () => {
       try {
         const response = await fetch("/api/auth/getUser");
         const data = await response.json();
 
         if (data.success && data.data) {
-          setUser(data.data);
+          signin(data.data);
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -34,9 +41,8 @@ export default function Navbar() {
         setIsLoading(false);
       }
     };
-
-    fetchUser();
-  }, []);
+    fetchUser()
+  }, [user, hydrated]);
 
   // Close modal when clicking outside of it
   useEffect(() => {
@@ -55,8 +61,13 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       // Call your logout endpoint
-      await fetch(API_URLS.LOGOUT, { method: "POST", credentials: "include" });
+      const res = await fetch(API_URLS.LOGOUT, { method: "POST", credentials: "include" });
       // Redirect to signin page
+      if (!res.ok) {
+          throw new Error("Logout failed");
+      }
+      signout()
+      invalidate()
       router.push("/signin");
     } catch (error) {
       console.error("Logout failed:", error);

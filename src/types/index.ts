@@ -20,6 +20,13 @@ export interface ApiResponse<T>{
     data?: T
 }
 
+export interface LoginResponseData {
+    success: boolean
+    message: string
+    token?: string
+    user?: JWT_PAYLOAD
+}
+
 export interface URLS {
     id: number;
     originalUrl: string;

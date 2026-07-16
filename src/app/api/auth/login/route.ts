@@ -1,35 +1,33 @@
 import { API_URLS } from "@/constants";
-import { ApiResponse, LoginData } from "@/types";
+import { LoginData, LoginResponseData } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     try {
-        const LoginData: LoginData = await req.json()
+        const loginData: LoginData = await req.json()
         const response = await fetch(API_URLS.SIGNIN, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(LoginData),
+            body: JSON.stringify(loginData),
         });
-        const responseData: ApiResponse<string> = await response.json()
-        const res = NextResponse.json({
-            success: responseData.success,
-            message: responseData.message
-        })
-        if(!responseData.success || !responseData.data) {
+        const {token, ...responseData}: LoginResponseData = await response.json()
+        const res  = NextResponse.json(responseData, {status: response.status})
+        if(!response.ok || !responseData.success || !token || !responseData.user) {
             return res
         }
-        res.cookies.set("token", responseData.data, {
+        res.cookies.set("token", token, {
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 3600,
-            path: "/"
+            path: "/",
+            priority: "high"
         })
         return res
-    } catch (error: any) {
+    } catch (error) {
         return NextResponse.json({
             success: false,
-            message: error.message
-        })
+            message: error instanceof Error ? error.message : "Something went wrong"
+        }, { status: 500 })
     }
 }

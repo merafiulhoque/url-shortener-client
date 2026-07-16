@@ -22,10 +22,10 @@ export async function POST (req: NextRequest){
         })
         const resData: ApiResponse<URLS> = await ApiResponse.json()
         return NextResponse.json(resData, {status: resData.success ? 200 : 503})
-    } catch (error: any) {
+    } catch (error) {
         return NextResponse.json({
             success: false,
-            message: error.message
+            message: error instanceof Error ? error.message: "Something Went Wrong"
         })
     }
 }

@@ -6,19 +6,24 @@ import { API_URLS } from "@/constants";
 import { ApiResponse, URLS } from "@/types";
 import { CopyIcon, Trash2Icon, QrCodeIcon, DownloadIcon, PlusIcon } from "lucide-react";
 import QRCode from 'qrcode';
+import { useURLStore } from "@/store/urlStore";
 
 export default function DashboardPage() {
-  const [urls, setUrls] = useState<URLS[]>([]);
+  // const [urls, setUrls] = useState<URLS[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
+  const {urls, hydrated, setUrls, invalidate, removeUrl} = useURLStore()
 
   useEffect(() => {
+
+    if(!hydrated) return
+
     const fetchUrls = async () => {
       try {
         const response = await fetch("/api/url/get-all-url");
         const result: ApiResponse<URLS[]> = await response.json();
-        if (!result.success || !result.data) throw new Error(result.message || "Failed to load URLs.");
+        if (!response.ok || !result.success || !result.data) throw new Error(result.message || "Failed to load URLs.");
         setUrls(result.data);
       } catch (err: any) {
         setError(err.message || "A network error occurred.");
@@ -26,8 +31,14 @@ export default function DashboardPage() {
         setIsLoading(false);
       }
     };
-    fetchUrls();
-  }, []);
+
+    if(!urls){
+      fetchUrls()
+    } else {
+      setIsLoading(false)
+      return
+    }
+  }, [hydrated, urls, setUrls]);
 
   const handleDeleteUrl = async (id: number) => {
     if (!confirm("Are you sure you want to delete this link?")) return;
@@ -43,7 +54,8 @@ export default function DashboardPage() {
         setError(response.message);
       } else {
         // Optimistically remove from UI without reloading the page
-        setUrls(prev => prev.filter(url => url.id !== id)); 
+        // setUrls(prev => prev.filter(url => url.id !== id));
+        removeUrl(id)
       }
     } catch (error) {
       setError("Something went wrong deleting the URL.");
@@ -97,7 +109,7 @@ export default function DashboardPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          {urls.length > 0 && (
+          {urls !== null && urls.length > 0 && (
             <button 
               onClick={handleExport}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg transition-all shadow-sm"
@@ -128,7 +140,7 @@ export default function DashboardPage() {
           <div className="p-8 flex flex-col gap-4 animate-pulse">
             {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-slate-100 rounded-lg w-full" />)}
           </div>
-        ) : urls.length > 0 ? (
+        ) : (urls !== null && urls.length > 0) ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-xs">

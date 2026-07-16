@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { z } from "zod";
-
 import { signupSchema } from "@/validation/schemas";
 import { SignupFormData } from "@/validation/schemas";
-import { API_URLS } from "@/constants";
+import { useAuthStore } from "@/store/authStrore";
+import { LoginResponseData } from "@/types";
 
 
 export default function SigninPage() {
@@ -17,6 +16,8 @@ export default function SigninPage() {
   const [formData, setFormData] = useState<SignupFormData>({ email: "john@gmail.com", password: "John@123" });
   const [errors, setErrors] = useState<{ email?: string; password?: string; server?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const signin = useAuthStore(state => state.signin)
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -53,15 +54,16 @@ export default function SigninPage() {
         headers: {"Content-type": "application/json"},
         body: JSON.stringify(validationResult.data)
       })
-      const data: { success: boolean; message: string } = await response.json();
+      const data: Omit<LoginResponseData, "token"> = await response.json();
 
-      if (data.success) {
-        // 3. Redirect on success (e.g., to a dashboard)
-        router.push("/dashboard"); 
-      } else {
+      if(!response.ok || !data.success || !data.user){
         // Handle server-side errors (e.g., "Invalid credentials")
         setErrors({ server: data.message || "Failed to sign in. Please check your credentials." });
+        return
       }
+      signin(data.user)
+      router.push("/dashboard")
+      
     } catch (error) {
       setErrors({ server: "A network error occurred. Please try again later." });
     } finally {
