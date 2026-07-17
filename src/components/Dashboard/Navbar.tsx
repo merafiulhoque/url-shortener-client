@@ -3,11 +3,11 @@ export const dynamic = "force-dynamic"
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { API_URLS } from "@/constants";
-import { JWT_PAYLOAD, UserInfo } from "@/types";
 import { useAuthStore } from "@/store/authStrore";
 import { useURLStore } from "@/store/urlStore";
-
+import Image from "next/image";
+import { LogOutIcon, UploadCloud } from "lucide-react";
+import UploadModal from "./UploadPicModal";
 
 export default function Navbar() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function Navbar() {
   const {invalidate} = useURLStore()
   // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true);
   // Ref to handle clicking outside the modal to close it
   const modalRef = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export default function Navbar() {
     <nav className="w-full h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between sticky top-0 z-50">
       
       {/* 1. Top Left: Brand Name */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Link href="/" className="text-xl font-bold text-indigo-600 tracking-tight">
           URL Shortener
         </Link>
@@ -98,15 +99,21 @@ export default function Navbar() {
       </div>
 
       {/* 3. Top Right: User Profile & Modal */}
-      <div className="flex-shrink-0 relative" ref={modalRef}>
+      <div className="shrink-0 relative" ref={modalRef}>
         
         {/* Rounded Div (Avatar trigger) */}
         <button
           onClick={() => setIsModalOpen(!isModalOpen)}
-          className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-transparent hover:border-indigo-200 transition-all focus:outline-none"
+          className="h-15 w-15 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-transparent hover:border-indigo-200 transition-all focus:outline-none overflow-hidden"
         >
-          <span className="text-sm font-bold text-indigo-700 uppercase">
-            {user?.email ? user.email.charAt(0) : "U"}
+          <span className="text-sm font-bold text-indigo-700 uppercase object-cover">
+            {/* {user?.email ? user.email.charAt(0) : "??"} */}
+            <Image 
+              src="/photo.jpg"
+              alt="Profile Photo"
+              height={60}
+              width={60}
+            />
           </span>
         </button>
 
@@ -128,21 +135,39 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Profile Pic Upload Button Button */}
+            <div className="px-2">
+              <button
+                onClick={() => setUploadModalOpen(true)}
+                className="w-full text-left px-3 py-2 text-sm text-black/60 rounded-md hover:bg-red-50 transition-colors font-medium flex items-center gap-2"
+              >
+                <UploadCloud />
+                Upload Profile Picture
+              </button>
+            </div>
+
             {/* Logout Button */}
             <div className="px-2">
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 transition-colors font-medium flex items-center gap-2"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <LogOutIcon />
                 Sign Out
               </button>
             </div>
             
           </div>
         )}
+
+        {
+          uploadModalOpen && (
+            <UploadModal 
+              open={uploadModalOpen}
+              onClose={() => setUploadModalOpen(false)}
+            />
+          )
+        }
       </div>
     </nav>
   );
