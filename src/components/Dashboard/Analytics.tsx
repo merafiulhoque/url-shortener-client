@@ -23,12 +23,13 @@ export default function Analytics(){
         })();
     }, [urls, hydrated, setUrls])
 
-    console.log("ANALYTICS:::",urls)
     return(
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={400}
+            className={"bg-black/10 p-5"}
+        >
             <BarChart data={urls ?? []}>
                 <CartesianGrid strokeDasharray="3 3"/>
-                <XAxis dataKey="originalUrl"/>
+                <XAxis dataKey="id"/>
                 <YAxis/>
                 <Tooltip />
                 <Line
@@ -36,7 +37,7 @@ export default function Analytics(){
                     dataKey="revenue"
                     stroke="#313131"
                 />
-                <Bar dataKey="clicks" fill="#3b82f6" />
+                <Bar dataKey="clicks" fill="#2E8F59" />
             </BarChart>
         </ResponsiveContainer>
     )

@@ -1,4 +1,3 @@
-"use server"
 
 import { ApiResponse, URLS } from "@/types";
 

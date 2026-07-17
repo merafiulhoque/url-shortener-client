@@ -1,7 +1,6 @@
 import { getToken } from "@/actions/getToken";
 import { API_URLS } from "@/constants";
 import { ApiResponse, URLS } from "@/types";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest){

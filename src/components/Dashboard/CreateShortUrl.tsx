@@ -159,7 +159,6 @@ export default function CreateShortUrlPage() {
       })
       
       const response: ApiResponse<URLS> = await ApiResponse.json()
-      console.log(response)
       if (!ApiResponse.ok || !response.success || !response.data) {
         setError(response.message ?? "Failed to shorten URL")
         setToastType("error")

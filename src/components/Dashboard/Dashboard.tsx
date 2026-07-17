@@ -13,32 +13,21 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
-  const {urls, hydrated, setUrls, invalidate, removeUrl} = useURLStore()
+  const {urls, hydrated, setUrls, invalidate, removeUrl, getUrls} = useURLStore()
 
   useEffect(() => {
 
     if(!hydrated) return
 
-    const fetchUrls = async () => {
-      try {
-        const response = await fetch("/api/url/get-all-url");
-        const result: ApiResponse<URLS[]> = await response.json();
-        if (!response.ok || !result.success || !result.data) throw new Error(result.message || "Failed to load URLs.");
-        setUrls(result.data);
-      } catch (err: any) {
-        setError(err.message || "A network error occurred.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if(!urls){
-      fetchUrls()
+      getUrls()
+      setIsLoading(false)
+      return
     } else {
       setIsLoading(false)
       return
     }
-  }, [hydrated, urls, setUrls]);
+  }, [hydrated, urls, getUrls]);
 
   const handleDeleteUrl = async (id: number) => {
     if (!confirm("Are you sure you want to delete this link?")) return;

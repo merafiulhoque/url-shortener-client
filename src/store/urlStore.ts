@@ -1,3 +1,4 @@
+import { fetchUrls } from "@/actions/fetchUrls"
 import { URLS } from "@/types"
 import {create} from "zustand"
 import {persist} from "zustand/middleware"
@@ -10,7 +11,8 @@ type URLStore = {
     invalidate: () => void,
     removeUrl:(id: number) => void,
     addUrl: (url: URLS) => void
-    setHydrated: (value: boolean) => void    
+    setHydrated: (value: boolean) => void
+    getUrls: () => Promise<void>
 }
 
 export const useURLStore = create<URLStore>()(
@@ -30,7 +32,15 @@ export const useURLStore = create<URLStore>()(
                     urls: state.urls ? [url, ...state.urls] : [url]
                 }))
             },
-            setHydrated: (value) => set({hydrated: true})
+            setHydrated: (value) => set({hydrated: value}),
+            getUrls: async () => {
+                const urlsFetched = await fetchUrls()
+                if(!urlsFetched){
+                    set({urls: null})
+                    return
+                }
+                set({urls: urlsFetched})
+            }
         }),
         {
             name: "url-store",
