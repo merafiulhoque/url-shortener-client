@@ -61,11 +61,9 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       // Call your logout endpoint
-      const res = await fetch(API_URLS.LOGOUT, { method: "POST", credentials: "include" });
+      const res = await fetch("/api/auth/signout", { method: "POST", credentials: "include" });
       // Redirect to signin page
-      if (!res.ok) {
-          throw new Error("Logout failed");
-      }
+      const {success, message} = await res.json()
       signout()
       invalidate()
       router.push("/signin");
