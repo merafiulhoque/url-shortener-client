@@ -8,6 +8,7 @@ type AuthStore = {
 
     signin: (user: JWT_PAYLOAD) => void
     signout: () => void
+    updateDp: (newUrl: string) => void
     setHydrated: (value: boolean) => void
 
 }
@@ -19,6 +20,11 @@ export const useAuthStore = create<AuthStore>()(
             hydrated: false,
             signin: (user) => set({user}),
             signout: () => set({user: null}),
+            updateDp: (newUrl) => {
+                set(state => ({
+                    user: state.user ? {...state.user, profilePic: newUrl} : null
+                }))
+            },
             setHydrated: (value) => set({hydrated: value})
         }),
         {

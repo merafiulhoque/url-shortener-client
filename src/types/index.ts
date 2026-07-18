@@ -12,6 +12,7 @@ export interface LoginData {
 export interface JWT_PAYLOAD {
     id: number
     email: string
+    profilePic: string | null
 }
 
 export interface ApiResponse<T>{
