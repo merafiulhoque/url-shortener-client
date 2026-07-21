@@ -1,5 +1,6 @@
 "use client";
 
+import { getToken } from "@/actions/getToken";
 import { API_URLS } from "@/constants";
 import { useAuthStore } from "@/store/authStrore";
 import { ApiResponse } from "@/types";
@@ -37,12 +38,12 @@ export default function UploadModal({ open, onClose }: UploadModalProps) {
 
     const formData = new FormData();
     formData.append("image", file);
-
-    const res = await fetch(API_URLS.UPLOAD_PIC, {
+    
+    const res = await fetch("/api/upload", {
       method: "POST",
       credentials: "include",
-      body: formData,
-    });
+      body: formData
+    })
 
     const resdata: ApiResponse<string> = await res.json();
 
