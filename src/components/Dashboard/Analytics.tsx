@@ -24,6 +24,7 @@ export default function Analytics(){
     }, [urls, hydrated, setUrls])
 
     return(
+        <>
         <ResponsiveContainer width="100%" height={400}
             className={"bg-black/10 p-5"}
         >
@@ -40,5 +41,12 @@ export default function Analytics(){
                 <Bar dataKey="clicks" fill="#2E8F59" />
             </BarChart>
         </ResponsiveContainer>
+        <div
+            className="fixed bottom-10 right-10 text-sm text-red-500"
+        >
+            ***This data may be stale, To see Latest data please signout and signin again. Thank You
+        </div>
+    </>
+        
     )
 }

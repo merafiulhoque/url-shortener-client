@@ -6,8 +6,12 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStrore";
 import { useURLStore } from "@/store/urlStore";
 import Image from "next/image";
-import { LogOutIcon, UploadCloud } from "lucide-react";
+import { DeleteIcon, LogOutIcon, RecycleIcon, Trash2Icon, UploadCloud } from "lucide-react";
 import UploadModal from "./UploadPicModal";
+import { ApiResponse } from "@/types";
+import { useToast } from "../Toast";
+import { stringify } from "querystring";
+import { getPublicId } from "@/actions/getPublicId";
 
 export default function Navbar() {
   const router = useRouter();
@@ -20,7 +24,8 @@ export default function Navbar() {
   const [imgError, setImgError] = useState<boolean>(false)
 
   const modalRef = useRef<HTMLDivElement>(null);
-
+  const { showToast } = useToast()
+  const { deleteDp } = useAuthStore()
   useEffect(() => {
     if (!hydrated) return;
     if (user) {
@@ -73,6 +78,41 @@ export default function Navbar() {
       console.error("Logout failed:", error);
     }
   };
+
+  const deleteProfilePicture = async () => {
+    if(!(user?.profilePic)){
+      showToast({text: "No Profile Picture Already", bgColor: "red" , duration: 2000})
+      return
+    } else {
+      if(!confirm("Are you sure ? ")){
+        console.log(user.profilePic)
+        return
+      }
+      
+      const publicId = await getPublicId(user.profilePic)
+      if(!publicId){
+        showToast({text: "Invalid Cloudinary URL", bgColor: "red" , duration: 2000})
+        return
+      }
+
+      const res = await fetch("/api/delete", {
+        method: "DELETE",
+        credentials: "include",
+        body: JSON.stringify({
+          id: user.id,
+          publicId
+        })
+      })
+      const resData: ApiResponse<null> = await res.json()
+      if(!resData.success){
+        showToast({text: resData.message, bgColor: "red" , duration: 2000})
+        return
+      }
+      showToast({text: resData.message, bgColor: "green" , duration: 2000})
+      deleteDp(user.profilePic)
+      return
+    }
+  }
 
   // user is "available" once hydration + fetch finished AND we have a user object
   const userReady = !isLoading && !!user;
@@ -151,6 +191,17 @@ export default function Navbar() {
               >
                 <UploadCloud className="h-4 w-4" />
                 Upload Profile Picture
+              </button>
+            </div>
+
+            {/* Delete Profile Picture */}
+            <div className="px-2">
+              <button
+                onClick={deleteProfilePicture}
+                className="w-full text-left px-3 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-50 transition-colors font-medium flex items-center gap-2"
+              >
+                <Trash2Icon className="h-4 w-4" />
+                Delete Profile Picture
               </button>
             </div>
 

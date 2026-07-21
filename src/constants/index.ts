@@ -11,5 +11,6 @@ export const API_URLS = {
     CREATE_NEW_SHORT_URL: `${BASE_URL}/api/urls/create-new-url`,
     DELETE_SHORT_URL: `${BASE_URL}/api/urls/delete-url`,
     GET_USER: `${BASE_URL}/api/auth/get-user`,
-    UPLOAD_PIC: `${BASE_URL}/api/uploads/upload`
+    UPLOAD_PIC: `${BASE_URL}/api/uploads/upload`,
+    DELETE_PIC: `${BASE_URL}/api/uploads/delete`
 } as const;

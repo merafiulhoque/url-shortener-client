@@ -62,8 +62,9 @@ export default function SigninPage() {
         return
       }
       signin(data.user)
-      router.push("/dashboard")
-      
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 1000);      
     } catch (error) {
       setErrors({ server: "A network error occurred. Please try again later." });
     } finally {
