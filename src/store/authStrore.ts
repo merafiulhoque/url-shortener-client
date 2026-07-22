@@ -10,6 +10,7 @@ type AuthStore = {
     signout: () => void
     updateDp: (newUrl: string) => void
     deleteDp: (profilePic: string) => void
+    upgradeToPremium: (user: JWT_PAYLOAD) => void
     setHydrated: (value: boolean) => void
 
 }
@@ -29,6 +30,11 @@ export const useAuthStore = create<AuthStore>()(
             deleteDp: (imgUrl) => {
                 set( state => ({
                     user: state.user ? {...state.user, profilePic: null} : null
+                }))
+            },
+            upgradeToPremium: (user) => {
+                set(state => ({
+                    user: state.user ? {...state.user, isPremium: true} : null
                 }))
             },
             setHydrated: (value) => set({hydrated: value})

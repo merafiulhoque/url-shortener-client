@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ApiResponse } from '@/types';
 import { useToast } from './Toast';
+import { useAuthStore } from '@/store/authStrore';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -24,8 +25,11 @@ const CheckIcon = () => (
 export default function GetPremium() {
   const { showToast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<number | null>(null);
+  const { user, upgradeToPremium } = useAuthStore()
 
   const handlePayment = async (price: number) => {
+    if(!user) return
+    
     setLoadingPlan(price);
     try {
       const isLoaded = await loadRazorpayScript();
@@ -65,6 +69,10 @@ export default function GetPremium() {
               }),
             });
             const verifyData: ApiResponse<null> = await verifyResponse.json();
+
+            if(verifyData.success){
+              upgradeToPremium(user)
+            }
             
             showToast({
               text: verifyData.message,
