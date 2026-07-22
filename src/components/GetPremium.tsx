@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { API_URLS } from '@/constants';
 import { ApiResponse } from '@/types';
 import { useToast } from './Toast';
 
@@ -36,7 +35,7 @@ export default function GetPremium() {
         return;
       }
 
-      const response = await fetch(API_URLS.CREATE_PAYMENT_ORDER, {
+      const response = await fetch("/api/payments/create-order", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -46,7 +45,7 @@ export default function GetPremium() {
       const order = await response.json();
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_TEST_API_KEY,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_TEST_API_KEY!,
         amount: order.amount,
         currency: order.currency,
         name: "URL Shortener",
@@ -55,7 +54,7 @@ export default function GetPremium() {
         
         handler: async function (response: any) {
           try {
-            const verifyResponse = await fetch(API_URLS.VERIFY_PAYMENT, {
+            const verifyResponse = await fetch("/api/payments/verify-payment", {
               method: "POST",
               credentials: "include",
               headers: { "Content-Type": "application/json" },
