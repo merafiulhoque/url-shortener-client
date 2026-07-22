@@ -67,19 +67,12 @@ export default function GetPremium() {
             });
             const verifyData: ApiResponse<null> = await verifyResponse.json();
             
-            if (!verifyData.success) {
-              showToast({
-                text: "Payment Verification Failed",
-                bgColor: "red",
-                duration: 3000
-              });
-              return;
-            }
             showToast({
-                text: "Payment Successful! Welcome to Premium.",
-                bgColor: "green",
-                duration: 3000
-            });
+              text: verifyData.message,
+              bgColor: verifyData.success ? "green":"red",
+              duration: 3000
+            })
+            return
           } catch (error) {
             showToast({
               text: error instanceof Error ? error.message : "Something went wrong",
