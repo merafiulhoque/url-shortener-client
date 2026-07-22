@@ -3,8 +3,8 @@
 import { API_URLS } from "@/constants"
 import { ApiResponse, URLS } from "@/types"
 import { useRouter } from "next/navigation"
-import { useState, FormEvent } from "react"
-import { Loader2, Link2, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react"
+import { useState } from "react"
+import { Loader2, Link2, CheckCircle2, AlertCircle, ArrowLeft, Zap, ShieldCheck, BarChart3 } from "lucide-react"
 import { useURLStore } from "@/store/urlStore"
 
 // Reusable Toast Component
@@ -18,23 +18,23 @@ const Toast = ({
   onClose?: () => void;
 }) => {
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5" />,
-    error: <AlertCircle className="w-5 h-5" />
+    success: <CheckCircle2 className="w-5 h-5 text-emerald-400" />,
+    error: <AlertCircle className="w-5 h-5 text-red-400" />
   }
 
   const colors = {
-    success: "bg-emerald-500/90 border-emerald-400",
-    error: "bg-red-500/90 border-red-400"
+    success: "bg-zinc-900/95 border-emerald-500/30 shadow-emerald-500/10",
+    error: "bg-zinc-900/95 border-red-500/30 shadow-red-500/10"
   }
 
   return (
-    <div className={`fixed bottom-8 right-8 flex items-center gap-3 px-6 py-4 rounded-2xl border backdrop-blur-sm shadow-2xl text-white font-medium ${colors[type]} animate-in slide-in-from-bottom-5 duration-300`}>
+    <div className={`fixed bottom-8 right-8 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl border backdrop-blur-xl shadow-2xl text-zinc-200 font-medium ${colors[type]} animate-in slide-in-from-bottom-5 duration-300`}>
       {icons[type]}
-      <span>{message}</span>
+      <span className="text-sm">{message}</span>
       {onClose && (
         <button 
           onClick={onClose}
-          className="ml-2 hover:opacity-70 transition-opacity"
+          className="ml-3 text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
         >
           ✕
         </button>
@@ -56,15 +56,15 @@ const UrlInput = ({
   disabled?: boolean;
 }) => {
   return (
-    <div className="relative w-full max-w-2xl">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black">
+    <div className="relative w-full max-w-2xl group bg-zinc-950">
+      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-indigo-400 transition-colors duration-300">
         <Link2 className="w-5 h-5" />
       </div>
       <input
         type="text"
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-2xl text-black placeholder:text-black/50 outline-none transition-all duration-200 focus:border-white/50 focus:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+        className="w-full pl-12 pr-4 py-3.5 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-xl text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-inner shadow-black/20"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && !disabled && onChange(value)}
@@ -87,11 +87,14 @@ const ActionButton = ({
     <button
       onClick={onClick}
       disabled={isLoading}
-      className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 rounded-2xl font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-emerald-500/40 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-3 text-lg"
+      className="group relative px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:shadow-indigo-500/40 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center gap-2 text-base overflow-hidden"
     >
+      {/* Button Shine Effect */}
+      <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
+      
       {isLoading ? (
         <>
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin" />
           Processing...
         </>
       ) : (
@@ -108,9 +111,9 @@ const BackButton = () => {
   return (
     <button
       onClick={() => router.back()}
-      className="group flex items-center gap-2 text-black/70 hover:text-black/50 transition-all duration-200 font-medium"
+      className="group flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 transition-all duration-200 text-sm font-medium bg-zinc-900/50 hover:bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-800/80"
     >
-      <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+      <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
       Back
     </button>
   )
@@ -124,6 +127,7 @@ export default function CreateShortUrlPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { addUrl } = useURLStore()
+
   const validateUrl = (url: string): boolean => {
     try {
       new URL(url)
@@ -134,7 +138,6 @@ export default function CreateShortUrlPage() {
   }
 
   const handleShorten = async () => {
-    // Validate URL
     if (!newUrl.trim()) {
       setError("Please enter a URL")
       setToastType("error")
@@ -168,7 +171,7 @@ export default function CreateShortUrlPage() {
       addUrl(response.data)
       setError(response.message ?? "URL shortened successfully! 🎉")
       setToastType("success")
-      setNewUrl("") // Clear input on success
+      setNewUrl("")
       
       setTimeout(() => {
         setError("")
@@ -185,37 +188,43 @@ export default function CreateShortUrlPage() {
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-zinc-200 via-zinc-200 to-zinc-200 p-1 md:p-10 flex items-center justify-center">
-      <div className="w-full max-w-4xl">
+    // h-full and overflow-hidden ensure the page does not spawn a scrollbar
+    <div className="min-h-full w-full p-4 flex flex-col items-center animate-in fade-in duration-500">
+        <div className="w-full max-w-3xl flex flex-col gap-6 my-auto">
+        
         {/* Header */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
             <BackButton />
-            <div className="text-black/80 text-sm font-mono">
+            <div className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-full text-[10px] font-mono font-semibold tracking-wider uppercase shadow-inner shadow-indigo-500/5">
               New URL
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-black mb-3">
-            Create Short URL
-          </h1>
-          <p className="text-black/60 text-lg">
-            Transform your long links into short, shareable URLs
-          </p>
+          
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+              Create Short URL
+            </h1>
+            <p className="text-zinc-400 text-sm md:text-base">
+              Transform your long, complex links into short, shareable URLs.
+            </p>
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 md:p-12">
-          <div className="flex flex-col items-center gap-8">
+        {/* Main Content Card */}
+        <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/50">
+          <div className="flex flex-col items-center gap-6">
+            
             {/* Input Section */}
-            <div className="w-full space-y-2">
+            <div className="w-full space-y-2 flex flex-col items-center text-center">
               <UrlInput
                 value={newUrl}
                 onChange={setNewUrl}
                 disabled={isLoading}
                 placeholder="https://example.com/your-long-url"
               />
-              <p className="text-black/80 text-sm px-2">
-                Enter any URL to create a shortened link
+              <p className="text-zinc-500 text-xs mt-1">
+                Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 text-zinc-300 mx-1 font-sans">Enter</kbd> to shorten instantly
               </p>
             </div>
 
@@ -225,20 +234,22 @@ export default function CreateShortUrlPage() {
               isLoading={isLoading}
             >
               <span>Shorten URL</span>
-              <span className="text-xl">→</span>
+              <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
             </ActionButton>
 
-            {/* Features */}
-            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/10">
+            {/* Features Grid */}
+            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-6 border-t border-zinc-800/80">
               {[
-                { icon: "⚡", label: "Fast", desc: "Instant shortening" },
-                { icon: "🔒", label: "Secure", desc: "Your data is safe" },
-                { icon: "📊", label: "Track", desc: "Monitor your links" }
+                { icon: <Zap className="w-5 h-5" />, label: "Lightning Fast", desc: "Instant redirects" },
+                { icon: <ShieldCheck className="w-5 h-5" />, label: "Secure Links", desc: "HTTPS encryption" },
+                { icon: <BarChart3 className="w-5 h-5" />, label: "Track Metrics", desc: "Monitor clicks" }
               ].map((feature) => (
-                <div key={feature.label} className="text-center text-black/70">
-                  <div className="text-2xl mb-1">{feature.icon}</div>
-                  <div className="font-medium">{feature.label}</div>
-                  <div className="text-sm text-white/40">{feature.desc}</div>
+                <div key={feature.label} className="flex flex-col items-center text-center group">
+                  <div className="w-10 h-10 mb-2 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 transition-all duration-300 shadow-lg shadow-black/20">
+                    {feature.icon}
+                  </div>
+                  <div className="font-semibold text-zinc-200 text-sm mb-0.5">{feature.label}</div>
+                  <div className="text-xs text-zinc-500">{feature.desc}</div>
                 </div>
               ))}
             </div>

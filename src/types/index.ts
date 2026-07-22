@@ -13,6 +13,7 @@ export interface JWT_PAYLOAD {
     id: number
     email: string
     profilePic: string | null
+    isPremium: boolean
 }
 
 export interface ApiResponse<T>{

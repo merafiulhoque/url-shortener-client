@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {PencilIcon, ChartBarIncreasing, Unlink} from "lucide-react"
+import { PencilIcon, ChartBarIncreasing, Unlink } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -11,26 +11,25 @@ export default function Sidebar() {
   const navItems = [
     {
       name: "Create New URL",
-      href: "/dashboard/create", // Route for your creation form
-      icon: <PencilIcon />,
+      href: "/dashboard/create",
+      icon: <PencilIcon className="w-5 h-5" />,
     },
     {
       name: "All URLs",
-      href: "/dashboard", // Main dashboard view showing the list
-      icon: <Unlink />
+      href: "/dashboard",
+      icon: <Unlink className="w-5 h-5" />,
     },
     {
       name: "Analytics",
       href: "/dashboard/analytics",
-      icon: <ChartBarIncreasing />
-    }
+      icon: <ChartBarIncreasing className="w-5 h-5" />,
+    },
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 h-[calc(100vh-4rem)] flex flex-col shrink-0 md:flex">
-      {/* Note: h-[calc(100vh-4rem)] assumes your Navbar is 4rem (16 units) tall.
-        Adjust the '4rem' if your Navbar height changes.
-      */}
+    <aside className="w-64 bg-zinc-950/80 backdrop-blur-md border-r border-zinc-800 h-[calc(100vh-4rem)] flex flex-col shrink-0 hidden md:flex">
+      {/* Note: h-[calc(100vh-4rem)] assumes your Navbar is 4rem (16 units) tall. */}
+      
       <div className="p-4 space-y-2 flex-1 overflow-y-auto">
         {navItems.map((item) => {
           // Check if the current route matches the item's href
@@ -40,27 +39,36 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
                 isActive
-                  ? "bg-indigo-50 text-indigo-700 shadow-sm"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 shadow-sm shadow-indigo-500/5"
+                  : "border border-transparent text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200"
               }`}
             >
               {/* Render the icon and apply conditional styling if active */}
-              <div className={`${isActive ? "text-indigo-600" : "text-slate-400"}`}>
+              <div
+                className={`transition-colors duration-300 ${
+                  isActive ? "text-indigo-400" : "text-zinc-500"
+                }`}
+              >
                 {item.icon}
               </div>
-              {item.name}
+              <span className="text-sm">{item.name}</span>
             </Link>
           );
         })}
       </div>
 
-      {/* Optional: Add a subtle footer or pro-tier upsell area at the bottom of the sidebar */}
-      <div className="p-4 border-t border-slate-100">
-        <p className="text-xs text-center text-slate-400">
-          URL Shortener v1.0
-        </p>
+      {/* Footer / Pro-tier upsell area */}
+      <div className="p-4 border-t border-zinc-800/50 bg-zinc-950/50">
+        <div className="flex flex-col items-center justify-center gap-1">
+          <p className="text-[10px] font-semibold tracking-widest text-zinc-600 uppercase">
+            URL Shortener
+          </p>
+          <p className="text-[10px] text-zinc-700">
+            v1.0.0
+          </p>
+        </div>
       </div>
     </aside>
   );

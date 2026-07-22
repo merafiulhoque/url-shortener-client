@@ -12,5 +12,11 @@ export const API_URLS = {
     DELETE_SHORT_URL: `${BASE_URL}/api/urls/delete-url`,
     GET_USER: `${BASE_URL}/api/auth/get-user`,
     UPLOAD_PIC: `${BASE_URL}/api/uploads/upload`,
-    DELETE_PIC: `${BASE_URL}/api/uploads/delete`
+    DELETE_PIC: `${BASE_URL}/api/uploads/delete`,
+    CREATE_PAYMENT_ORDER: `${BASE_URL}/api/payments/create-order`,
+    VERIFY_PAYMENT: `${BASE_URL}/api/payments/verify-payment`
 } as const;
+
+export const ROUTES = {
+    GET_PREMIUM: `/dashboard/get-premium`
+}

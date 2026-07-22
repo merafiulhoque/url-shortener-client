@@ -6,26 +6,26 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStrore";
 import { useURLStore } from "@/store/urlStore";
 import Image from "next/image";
-import { DeleteIcon, LogOutIcon, RecycleIcon, Trash2Icon, UploadCloud } from "lucide-react";
+import { DeleteIcon, LogOutIcon, RecycleIcon, Trash2Icon, UploadCloud, Search } from "lucide-react";
 import UploadModal from "./UploadPicModal";
 import { ApiResponse } from "@/types";
 import { useToast } from "../Toast";
-import { stringify } from "querystring";
 import { getPublicId } from "@/actions/getPublicId";
+import { ROUTES } from "@/constants";
 
 export default function Navbar() {
   const router = useRouter();
-  const { user, hydrated, signin, signout } = useAuthStore();
+  const { user, hydrated, signin, signout, deleteDp } = useAuthStore();
   const { invalidate } = useURLStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [imgError, setImgError] = useState<boolean>(false)
+  const [imgError, setImgError] = useState<boolean>(false);
 
   const modalRef = useRef<HTMLDivElement>(null);
-  const { showToast } = useToast()
-  const { deleteDp } = useAuthStore()
+  const { showToast } = useToast();
+
   useEffect(() => {
     if (!hydrated) return;
     if (user) {
@@ -50,9 +50,9 @@ export default function Navbar() {
     fetchUser();
   }, [user, hydrated]);
 
-  useEffect(()=>{
-    setImgError(false)
-  }, [user?.profilePic])
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.profilePic]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -80,19 +80,18 @@ export default function Navbar() {
   };
 
   const deleteProfilePicture = async () => {
-    if(!(user?.profilePic)){
-      showToast({text: "No Profile Picture Already", bgColor: "red" , duration: 2000})
-      return
+    if (!(user?.profilePic)) {
+      showToast({ text: "No Profile Picture Found", bgColor: "red", duration: 2000 });
+      return;
     } else {
-      if(!confirm("Are you sure ? ")){
-        console.log(user.profilePic)
-        return
+      if (!confirm("Are you sure you want to delete your profile picture?")) {
+        return;
       }
       
-      const publicId = await getPublicId(user.profilePic)
-      if(!publicId){
-        showToast({text: "Invalid Cloudinary URL", bgColor: "red" , duration: 2000})
-        return
+      const publicId = await getPublicId(user.profilePic);
+      if (!publicId) {
+        showToast({ text: "Invalid Cloudinary URL", bgColor: "red", duration: 2000 });
+        return;
       }
 
       const res = await fetch("/api/delete", {
@@ -102,27 +101,27 @@ export default function Navbar() {
           id: user.id,
           publicId
         })
-      })
-      const resData: ApiResponse<null> = await res.json()
-      if(!resData.success){
-        showToast({text: resData.message, bgColor: "red" , duration: 2000})
-        return
+      });
+      const resData: ApiResponse<null> = await res.json();
+      if (!resData.success) {
+        showToast({ text: resData.message, bgColor: "red", duration: 2000 });
+        return;
       }
-      showToast({text: resData.message, bgColor: "green" , duration: 2000})
-      deleteDp(user.profilePic)
-      return
+      showToast({ text: resData.message, bgColor: "green", duration: 2000 });
+      deleteDp(user.profilePic);
+      return;
     }
-  }
+  };
 
   // user is "available" once hydration + fetch finished AND we have a user object
   const userReady = !isLoading && !!user;
 
   return (
-    <nav className="w-full h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between sticky top-0 z-50">
+    <nav className="w-full h-16 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-50">
 
       {/* 1. Top Left: Brand Name */}
       <div className="shrink-0">
-        <Link href="/" className="text-xl font-bold text-indigo-600 tracking-tight">
+        <Link href="/" className="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 transition-opacity hover:opacity-80">
           URL Shortener
         </Link>
       </div>
@@ -130,14 +129,12 @@ export default function Navbar() {
       {/* 2. Middle: Search Bar */}
       <div className="hidden md:flex flex-1 max-w-lg mx-8 relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <Search className="h-4 w-4 text-zinc-500" />
         </div>
         <input
           type="text"
           placeholder="Search your links..."
-          className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 transition-all text-sm"
+          className="w-full pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-200 placeholder-zinc-500 focus:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all text-sm"
         />
       </div>
 
@@ -148,22 +145,22 @@ export default function Navbar() {
         <button
           onClick={() => setIsModalOpen(!isModalOpen)}
           disabled={!userReady}
-          className="h-11 w-11 rounded-full bg-slate-100 flex items-center justify-center border-2 border-transparent hover:border-indigo-200 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-100 overflow-hidden disabled:cursor-default"
+          className="h-10 w-10 rounded-full bg-zinc-800 flex items-center justify-center border-2 border-zinc-700 hover:border-indigo-500/50 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/50 overflow-hidden disabled:cursor-default"
         >
           {!userReady ? (
             // Loading skeleton
-            <div className="h-full w-full rounded-full bg-slate-200 animate-pulse" />
-          ) : user?.profilePic ? (
+            <div className="h-full w-full rounded-full bg-zinc-700 animate-pulse" />
+          ) : user?.profilePic && !imgError ? (
             <Image
               src={user.profilePic}
               alt="Profile Photo"
-              height={44}
-              width={44}
+              height={40}
+              width={40}
               className="h-full w-full object-cover rounded-full"
-              onError={()=> setImgError(true)}
+              onError={() => setImgError(true)}
             />
           ) : (
-            <span className="text-sm font-semibold text-indigo-700 uppercase">
+            <span className="text-sm font-bold text-indigo-400 uppercase">
               {user?.email ? user.email.charAt(0) : "?"}
             </span>
           )}
@@ -171,51 +168,68 @@ export default function Navbar() {
 
         {/* Modal / Dropdown Menu */}
         {isModalOpen && userReady && (
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl shadow-slate-200/60 border border-slate-100 py-4 px-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute right-0 mt-3 w-72 bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black border border-zinc-800 py-3 px-2 animate-in fade-in slide-in-from-top-2 duration-200">
 
             {/* User Info Section */}
-            <div className="px-4 pb-3 border-b border-slate-100 mb-2">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <div className="px-3 pb-3 mb-2 border-b border-zinc-800">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
                 Account
               </p>
-              <p className="text-sm font-medium text-slate-900 truncate">
-                {user?.email || "No email found"}
-              </p>
+              <div className="flex items-center justify-between gap-2 mt-2">
+                <p className="text-sm font-medium text-zinc-200 truncate" title={user?.email || ""}>
+                  {user?.email || "No email found"}
+                </p>
+                
+                {/* Premium Badge / Upgrade Button */}
+                {user.isPremium ? (
+                  <span className="shrink-0 inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
+                    Premium
+                  </span>
+                ) : (
+                  <Link 
+                    href={ROUTES.GET_PREMIUM}
+                    className="shrink-0 inline-flex items-center justify-center px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white bg-gradient-to-r from-indigo-600 to-cyan-600 rounded-full shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
+                  >
+                    Upgrade
+                  </Link>
+                )}
+              </div>
             </div>
 
-            {/* Upload Profile Picture */}
-            <div className="px-2">
+            {/* Actions List */}
+            <div className="flex flex-col gap-1 px-1">
               <button
-                onClick={() => setUploadModalOpen(true)}
-                className="w-full text-left px-3 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-50 transition-colors font-medium flex items-center gap-2"
+                onClick={() => {
+                  setUploadModalOpen(true);
+                  setIsModalOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-zinc-800 hover:text-white transition-colors font-medium flex items-center gap-3"
               >
-                <UploadCloud className="h-4 w-4" />
-                Upload Profile Picture
+                <UploadCloud className="h-4 w-4 text-zinc-400" />
+                Upload Avatar
               </button>
-            </div>
 
-            {/* Delete Profile Picture */}
-            <div className="px-2">
               <button
-                onClick={deleteProfilePicture}
-                className="w-full text-left px-3 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-50 transition-colors font-medium flex items-center gap-2"
+                onClick={() => {
+                  deleteProfilePicture();
+                  setIsModalOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-zinc-800 hover:text-white transition-colors font-medium flex items-center gap-3"
               >
-                <Trash2Icon className="h-4 w-4" />
-                Delete Profile Picture
+                <Trash2Icon className="h-4 w-4 text-zinc-400" />
+                Delete Avatar
               </button>
-            </div>
 
-            {/* Logout Button */}
-            <div className="px-2">
+              <div className="h-px bg-zinc-800 my-1 mx-2" />
+
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 transition-colors font-medium flex items-center gap-2"
+                className="w-full text-left px-3 py-2 text-sm text-red-400 rounded-lg hover:bg-red-500/10 hover:text-red-300 transition-colors font-medium flex items-center gap-3"
               >
                 <LogOutIcon className="h-4 w-4" />
                 Sign Out
               </button>
             </div>
-
           </div>
         )}
 
