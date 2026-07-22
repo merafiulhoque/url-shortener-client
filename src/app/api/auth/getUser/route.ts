@@ -1,6 +1,6 @@
 import { getToken } from "@/actions/getToken";
 import { API_URLS } from "@/constants";
-import { ApiResponse, JWT_PAYLOAD, UserInfo } from "@/types";
+import { ApiResponse, JWT_PAYLOAD } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET (req: NextRequest){
