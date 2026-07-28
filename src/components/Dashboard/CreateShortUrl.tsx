@@ -1,130 +1,22 @@
 "use client"
 
-import { API_URLS } from "@/constants"
-import { ApiResponse, URLS } from "@/types"
+import { ApiResponse, EXPIRY_UNITS, URLS } from "@/types"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Loader2, Link2, CheckCircle2, AlertCircle, ArrowLeft, Zap, ShieldCheck, BarChart3 } from "lucide-react"
+import { Zap, ShieldCheck, BarChart3, Clock, ChevronDown } from "lucide-react"
 import { useURLStore } from "@/store/urlStore"
+import { useToast } from "../Toast"
+import UrlInput, { ActionButton, BackButton } from "../ui/Input"
 
-// Reusable Toast Component
-const Toast = ({ 
-  message, 
-  type = "success", 
-  onClose 
-}: { 
-  message: string; 
-  type?: "success" | "error"; 
-  onClose?: () => void;
-}) => {
-  const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-400" />,
-    error: <AlertCircle className="w-5 h-5 text-red-400" />
-  }
-
-  const colors = {
-    success: "bg-zinc-900/95 border-emerald-500/30 shadow-emerald-500/10",
-    error: "bg-zinc-900/95 border-red-500/30 shadow-red-500/10"
-  }
-
-  return (
-    <div className={`fixed bottom-8 right-8 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl border backdrop-blur-xl shadow-2xl text-zinc-200 font-medium ${colors[type]} animate-in slide-in-from-bottom-5 duration-300`}>
-      {icons[type]}
-      <span className="text-sm">{message}</span>
-      {onClose && (
-        <button 
-          onClick={onClose}
-          className="ml-3 text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
-        >
-          ✕
-        </button>
-      )}
-    </div>
-  )
-}
-
-// Reusable Input Component
-const UrlInput = ({ 
-  value, 
-  onChange, 
-  placeholder = "Enter your link to shorten",
-  disabled = false
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  disabled?: boolean;
-}) => {
-  return (
-    <div className="relative w-full max-w-2xl group bg-zinc-950">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-indigo-400 transition-colors duration-300">
-        <Link2 className="w-5 h-5" />
-      </div>
-      <input
-        type="text"
-        placeholder={placeholder}
-        disabled={disabled}
-        className="w-full pl-12 pr-4 py-3.5 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-xl text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-inner shadow-black/20"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && !disabled && onChange(value)}
-      />
-    </div>
-  )
-}
-
-// Reusable Button Component
-const ActionButton = ({ 
-  onClick, 
-  isLoading = false, 
-  children 
-}: {
-  onClick?: () => void;
-  isLoading?: boolean;
-  children: React.ReactNode;
-}) => {
-  return (
-    <button
-      onClick={onClick}
-      disabled={isLoading}
-      className="group relative px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:shadow-indigo-500/40 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center gap-2 text-base overflow-hidden"
-    >
-      {/* Button Shine Effect */}
-      <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
-      
-      {isLoading ? (
-        <>
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Processing...
-        </>
-      ) : (
-        children
-      )}
-    </button>
-  )
-}
-
-// Reusable Back Button Component
-const BackButton = () => {
-  const router = useRouter()
-  
-  return (
-    <button
-      onClick={() => router.back()}
-      className="group flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200 transition-all duration-200 text-sm font-medium bg-zinc-900/50 hover:bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-800/80"
-    >
-      <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-      Back
-    </button>
-  )
-}
 
 // Main Page Component
 export default function CreateShortUrlPage() {
   const [newUrl, setNewUrl] = useState<string>("")
-  const [error, setError] = useState("")
-  const [toastType, setToastType] = useState<"success" | "error">("success")
+  const [hasExpiry, setHasExpiry] = useState(false)
+  const [expiryDuration, setExpiryDuration] = useState<number | "">("")
+  const [expiryUnit, setExpiryUnit] = useState<EXPIRY_UNITS>("")
   const [isLoading, setIsLoading] = useState(false)
+  const { showToast } = useToast()
   const router = useRouter()
   const { addUrl } = useURLStore()
 
@@ -139,56 +31,71 @@ export default function CreateShortUrlPage() {
 
   const handleShorten = async () => {
     if (!newUrl.trim()) {
-      setError("Please enter a URL")
-      setToastType("error")
+      showToast({ text: "Please enter a URL", bgColor: "red", duration: 3000 })
       return
     }
 
     if (!validateUrl(newUrl)) {
-      setError("Please enter a valid URL (e.g., https://example.com)")
-      setToastType("error")
+      showToast({ text: "Please enter a valid URL (e.g., https://example.com)", bgColor: "red", duration: 3000 })
+      return
+    }
+
+    if (hasExpiry && (!expiryDuration || expiryDuration <= 0)) {
+      showToast({ text: "Please enter a valid expiration duration", bgColor: "red", duration: 3000 })
       return
     }
 
     setIsLoading(true)
-    setError("")
 
     try {
-      const ApiResponse = await fetch("/api/url/createShortUrl", {
+      const apiRes = await fetch("/api/url/createShortUrl", {
         method: "POST",
         credentials: "include",
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ originalUrl: newUrl })
+        body: JSON.stringify({ 
+          originalUrl: newUrl,
+          expiryDuration: expiryDuration,
+          expiryUnit: expiryUnit
+        })
       })
       
-      const response: ApiResponse<URLS> = await ApiResponse.json()
-      if (!ApiResponse.ok || !response.success || !response.data) {
-        setError(response.message ?? "Failed to shorten URL")
-        setToastType("error")
+      const response: ApiResponse<URLS> = await apiRes.json()
+      
+      if (!apiRes.ok || !response.success || !response.data) {
+        showToast({ 
+          text: response.message ?? "Failed to shorten URL", 
+          bgColor: "red", 
+          duration: 3000 
+        })
         setIsLoading(false)
         return
       }
+      
       addUrl(response.data)
-      setError(response.message ?? "URL shortened successfully! 🎉")
-      setToastType("success")
+      showToast({ 
+        text: response.message ?? "URL shortened successfully! 🎉", 
+        bgColor: "green", // Assuming green/default for success based on your structure
+        duration: 3000 
+      })
+      
       setNewUrl("")
       
       setTimeout(() => {
-        setError("")
         router.replace("/dashboard")
       }, 2000)
       
     } catch (error) {
-      setError("Something went wrong. Please try again.")
-      setToastType("error")
-      setIsLoading(false)
+      showToast({ 
+        text: "Something went wrong. Please try again.", 
+        bgColor: "red", 
+        duration: 3000 
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    // h-full and overflow-hidden ensure the page does not spawn a scrollbar
     <div className="min-h-full w-full p-4 flex flex-col items-center animate-in fade-in duration-500">
         <div className="w-full max-w-3xl flex flex-col gap-6 my-auto">
         
@@ -216,13 +123,65 @@ export default function CreateShortUrlPage() {
           <div className="flex flex-col items-center gap-6">
             
             {/* Input Section */}
-            <div className="w-full space-y-2 flex flex-col items-center text-center">
+            <div className="w-full space-y-4 flex flex-col items-center text-center">
               <UrlInput
                 value={newUrl}
                 onChange={setNewUrl}
+                onEnter={handleShorten}
                 disabled={isLoading}
                 placeholder="https://example.com/your-long-url"
               />
+              
+              {/* Expiration Settings */}
+              <div className="w-full max-w-2xl flex flex-col items-start bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/80">
+                <label className="flex items-center gap-3 cursor-pointer select-none text-zinc-300 text-sm font-medium">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={hasExpiry} 
+                      onChange={(e) => setHasExpiry(e.target.checked)} 
+                    />
+                    <div className="w-10 h-5 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500 shadow-inner"></div>
+                  </div>
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-zinc-400" />
+                    Set an expiration date
+                  </span>
+                </label>
+
+                {hasExpiry && (
+                  <div className="flex items-center gap-3 w-full mt-4 animate-in slide-in-from-top-2 fade-in duration-200">
+                    <input 
+                      type="number" 
+                      disabled={isLoading}
+                      value={expiryDuration}
+                      onChange={(e) => setExpiryDuration(e.target.value ? parseInt(e.target.value) : "")}
+                      className="w-1/2 md:w-32 px-4 py-2.5 bg-zinc-900/80 border border-zinc-700 rounded-lg text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50"
+                      placeholder="e.g. 7"
+                    />
+                    <div className="relative w-1/2 md:w-40">
+                      <select
+                        value={expiryUnit}
+                        disabled={isLoading}
+                        onChange={(e) => setExpiryUnit(e.target.value as EXPIRY_UNITS)}
+                        className="w-full px-4 py-2.5 bg-zinc-900/80 border border-zinc-700 rounded-lg text-zinc-100 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer disabled:opacity-50"
+                      >
+                        <option value="">Select</option>
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="months">Months</option>
+                      </select>
+                      {/* Custom dropdown arrow */}
+                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-zinc-400">
+                        <ChevronDown />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <p className="text-zinc-500 text-xs mt-1">
                 Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 text-zinc-300 mx-1 font-sans">Enter</kbd> to shorten instantly
               </p>
@@ -255,15 +214,6 @@ export default function CreateShortUrlPage() {
             </div>
           </div>
         </div>
-
-        {/* Toast Notification */}
-        {error && (
-          <Toast 
-            message={error} 
-            type={toastType}
-            onClose={() => setError("")}
-          />
-        )}
       </div>
     </div>
   )

@@ -36,3 +36,11 @@ export interface URLS {
     userId: number;
     clicks: number;
 }
+
+export type EXPIRY_UNITS = "" | "minutes" | "hours" | "days" | "months" | "weeks" | "years"
+
+export interface CreateShortUrlPayload {
+    originalUrl: string
+    expiryDuration: number
+    expiryUnit: EXPIRY_UNITS
+}

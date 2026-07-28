@@ -1,11 +1,11 @@
 import { getToken } from "@/actions/getToken";
 import { API_URLS } from "@/constants";
-import { ApiResponse, URLS } from "@/types";
+import { ApiResponse, CreateShortUrlPayload, URLS } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST (req: NextRequest){
     try {
-        const { originalUrl } = await req.json()
+        const payload: CreateShortUrlPayload = await req.json()
         const token = await getToken()
         if(!token){
             return NextResponse.json({
@@ -18,7 +18,7 @@ export async function POST (req: NextRequest){
             headers: { 
                 "Content-type": "application/json",
                 Authorization:  `Bearer ${token}` },
-            body: JSON.stringify({ originalUrl })
+            body: JSON.stringify(payload)
         })
         const resData: ApiResponse<URLS> = await ApiResponse.json()
         return NextResponse.json(resData, {status: resData.success ? 200 : 503})
