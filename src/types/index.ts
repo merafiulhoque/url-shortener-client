@@ -35,6 +35,9 @@ export interface URLS {
     shortnedUrl: string;
     userId: number;
     clicks: number;
+    createdAt: Date;
+    updatedAt: Date;
+    expiresAt: Date | null;
 }
 
 export type EXPIRY_UNITS = "" | "minutes" | "hours" | "days" | "months" | "weeks" | "years"

@@ -8,7 +8,7 @@ import { CopyIcon, Trash2Icon, QrCodeIcon, DownloadIcon, PlusIcon, Link2Off } fr
 import QRCode from 'qrcode';
 import { useURLStore } from "@/store/urlStore";
 
-export default function DashboardPage() {
+export default function AllUrls() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
@@ -84,6 +84,10 @@ export default function DashboardPage() {
     a.click();
   };
 
+  const getFullStat = async () => {
+    console.log("Seeing full stat")
+  }
+
   return (
     <div className="w-full bg-zinc-800 max-w-full mx-auto p-4 md:p-8 animate-in fade-in duration-500">
       
@@ -139,6 +143,8 @@ export default function DashboardPage() {
                   <th className="px-6 py-5">Short Link</th>
                   <th className="px-6 py-5">Original URL</th>
                   <th className="px-6 py-5 text-center">Clicks</th>
+                  <th className="px-6 py-5 text-center">Created On</th>
+                  <th className="px-6 py-5 text-center">Expires On</th>
                   <th className="px-6 py-5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -166,6 +172,24 @@ export default function DashboardPage() {
                       <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20">
                           {url.clicks || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button 
+                          className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20"
+                          onClick={getFullStat}  
+                        >
+                          Full Stat
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20">
+                          {new Date(url.createdAt).toDateString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20">
+                          {url.expiresAt? new Date(url.expiresAt).toDateString() : "Forever"}
                         </span>
                       </td>
 
