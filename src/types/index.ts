@@ -47,3 +47,32 @@ export interface CreateShortUrlPayload {
     expiryDuration: number
     expiryUnit: EXPIRY_UNITS
 }
+
+export interface CreateResponse {
+    success: boolean
+    message: string
+    status: number
+}
+
+export interface CreateResponseWithData<T> {
+    success: boolean
+    message: string
+    data: T
+    status: number    
+}
+
+export interface Visitor {
+    id: number;
+    urlId: number;
+    ipAddress?: string
+    userAgent?: string
+    visitedAt?: Date;
+}
+
+export interface UrlStatData {
+    shortnedUrl: string;
+    originalUrl: string;
+    createdAt: Date;
+    expiresAt?: Date
+    visitors?: Visitor[]
+}

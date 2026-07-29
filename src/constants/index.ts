@@ -14,7 +14,8 @@ export const API_URLS = {
     UPLOAD_PIC: `${BASE_URL}/api/uploads/upload`,
     DELETE_PIC: `${BASE_URL}/api/uploads/delete`,
     CREATE_PAYMENT_ORDER: `${BASE_URL}/api/payments/create-order`,
-    VERIFY_PAYMENT: `${BASE_URL}/api/payments/verify-payment`
+    VERIFY_PAYMENT: `${BASE_URL}/api/payments/verify-payment`,
+    GET_STAT: `${BASE_URL}/api/urls/get-stat`
 } as const;
 
 export const ROUTES = {

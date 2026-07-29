@@ -7,12 +7,21 @@ import { ApiResponse, URLS } from "@/types";
 import { CopyIcon, Trash2Icon, QrCodeIcon, DownloadIcon, PlusIcon, Link2Off } from "lucide-react";
 import QRCode from 'qrcode';
 import { useURLStore } from "@/store/urlStore";
+import { useToast } from "../Toast";
+import UrlStatsModal from "@/components/Dashboard/UrlStatsModal"; // Adjust path if your components folder is elsewhere
+import { UrlStatData } from "@/types"; // Adjust path if your types folder is elsewhere
 
 export default function AllUrls() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
-  const { urls, hydrated, getUrls, removeUrl } = useURLStore()
+  
+  // New state to hold the fetched statistics data
+  const [statData, setStatData] = useState<UrlStatData | null>(null);
+  
+  const { urls, hydrated, getUrls, removeUrl } = useURLStore();
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!hydrated) return;
@@ -84,9 +93,35 @@ export default function AllUrls() {
     a.click();
   };
 
-  const getFullStat = async () => {
-    console.log("Seeing full stat")
-  }
+  const getFullStat = async (id: number) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/url/get-stat",{
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({id})
+      });
+      const resData: ApiResponse<any> = await res.json();
+      console.log(resData)
+      if (resData.success) {
+        // Set the fetched data to state so the modal can render it
+        setStatData(resData.data);
+      } else {
+        showToast({
+          text: resData.message || "Failed to fetch stats",
+          bgColor: "red",
+        });
+      }
+    } catch (error) {
+      showToast({
+        text: error instanceof Error ? error.message : "Something went wrong",
+        bgColor: "red",
+        duration: 3000
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full bg-zinc-800 max-w-full mx-auto p-4 md:p-8 animate-in fade-in duration-500">
@@ -129,7 +164,7 @@ export default function AllUrls() {
 
       {/* URLs Table Container */}
       <div className="bg-zinc-900/40 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/50 border border-zinc-800 overflow-hidden">
-        {isLoading ? (
+        {isLoading && (!urls || urls.length === 0) ? (
           <div className="p-8 flex flex-col gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-16 bg-zinc-800/50 rounded-xl w-full animate-pulse" />
@@ -176,8 +211,8 @@ export default function AllUrls() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button 
-                          className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20"
-                          onClick={getFullStat}  
+                          className="inline-flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20 transition-colors"
+                          onClick={async () => await getFullStat(url.id)}  
                         >
                           Full Stat
                         </button>
@@ -277,6 +312,14 @@ export default function AllUrls() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* URL Statistics Modal Popup */}
+      {statData && (
+        <UrlStatsModal 
+          data={statData} 
+          onClose={() => setStatData(null)} 
+        />
       )}
     </div>
   );
