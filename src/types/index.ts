@@ -46,6 +46,8 @@ export interface CreateShortUrlPayload {
     originalUrl: string
     expiryDuration: number
     expiryUnit: EXPIRY_UNITS
+    customAlias: string
+    password: string
 }
 
 export interface CreateResponse {
