@@ -41,6 +41,7 @@ export default function CreateShortUrlPage() {
   }
 
   const handleShorten = async () => {
+    
     if (!newUrl.trim()) {
       showToast({ text: "Please enter a URL", bgColor: "red", duration: 3000 })
       return

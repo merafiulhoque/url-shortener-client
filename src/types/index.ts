@@ -44,8 +44,8 @@ export type EXPIRY_UNITS = "" | "minutes" | "hours" | "days" | "months" | "weeks
 
 export interface CreateShortUrlPayload {
     originalUrl: string
-    expiryDuration: number
-    expiryUnit: EXPIRY_UNITS
+    expiryDuration?: number
+    expiryUnit?: EXPIRY_UNITS
     customAlias: string
     password: string
 }
