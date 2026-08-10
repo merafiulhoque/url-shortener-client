@@ -1,6 +1,6 @@
 "use client"
 
-import { fetchUrls } from "@/actions/fetchUrls"
+import { fetchUrls, fetchUrlsAll } from "@/actions/fetchUrls"
 import { useURLStore } from "@/store/urlStore"
 import { useEffect } from "react"
 import { 
@@ -24,7 +24,7 @@ export default function Analytics() {
             return
         }
         (async () => {
-            const data = await fetchUrls()
+            const data = await fetchUrlsAll()
             if (!data) {
                 setUrls([])
                 return
