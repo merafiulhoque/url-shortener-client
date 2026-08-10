@@ -3,7 +3,7 @@ import { API_URLS } from "@/constants";
 import { ApiResponse, URLS } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest){
+export async function POST(req: NextRequest){
     try {
         const token =await getToken()
         if(!token){
@@ -12,7 +12,9 @@ export async function GET(req: NextRequest){
                 message: "Unauthorized"
             }, {status: 401})
         }
-        const response = await fetch (API_URLS.GET_ALL_SHORT_URLS, {
+        const { page } = await req.json()
+        
+        const response = await fetch (`${API_URLS.GET_ALL_SHORT_URLS}?page=${page}`, {
             method: "GET", 
             headers: {
                 Authorization: `Bearer ${token}`

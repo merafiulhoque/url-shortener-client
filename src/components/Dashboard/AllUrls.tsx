@@ -4,37 +4,44 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { API_URLS } from "@/constants";
 import { ApiResponse, URLS } from "@/types";
-import { CopyIcon, Trash2Icon, QrCodeIcon, DownloadIcon, PlusIcon, Link2Off } from "lucide-react";
+import { 
+  CopyIcon, 
+  Trash2Icon, 
+  QrCodeIcon, 
+  DownloadIcon, 
+  PlusIcon, 
+  Link2Off,
+  ChevronLeftIcon,
+  ChevronRightIcon
+} from "lucide-react";
 import QRCode from 'qrcode';
 import { useURLStore } from "@/store/urlStore";
 import { useToast } from "../Toast";
-import UrlStatsModal from "@/components/Dashboard/UrlStatsModal"; // Adjust path if your components folder is elsewhere
-import { UrlStatData } from "@/types"; // Adjust path if your types folder is elsewhere
+import UrlStatsModal from "@/components/Dashboard/UrlStatsModal";
+import { UrlStatData } from "@/types";
 
 export default function AllUrls() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
-  
-  // New state to hold the fetched statistics data
+  const [page, setPage] = useState<number>(1);
   const [statData, setStatData] = useState<UrlStatData | null>(null);
   
   const { urls, hydrated, getUrls, removeUrl } = useURLStore();
-
   const { showToast } = useToast();
 
+  // Fetch URLs whenever the page changes
   useEffect(() => {
     if (!hydrated) return;
 
-    if (!urls) {
-      getUrls();
+    const fetchUrls = async () => {
+      setIsLoading(true);
+      await getUrls(page);
       setIsLoading(false);
-      return;
-    } else {
-      setIsLoading(false);
-      return;
-    }
-  }, [hydrated, urls, getUrls]);
+    };
+
+    fetchUrls();
+  }, [hydrated, page, getUrls]);
 
   const handleDeleteUrl = async (id: number) => {
     if (!confirm("Are you sure you want to delete this link?")) return;
@@ -50,6 +57,10 @@ export default function AllUrls() {
         setError(response.message);
       } else {
         removeUrl(id);
+        // Optional: refresh if the current page becomes empty
+        if (urls && urls.length === 1 && page > 1) {
+          setPage(prev => prev - 1);
+        }
       }
     } catch (error) {
       setError("Something went wrong deleting the URL.");
@@ -77,7 +88,6 @@ export default function AllUrls() {
 
   const generateQR = async (url: string) => {
     try {
-      // Keep QR code white background for reliable scanning
       const dataUrl = await QRCode.toDataURL(url, { margin: 2, width: 200, color: { dark: '#09090b', light: '#ffffff' } });
       setQr(dataUrl);
     } catch (err) {
@@ -102,9 +112,8 @@ export default function AllUrls() {
         body: JSON.stringify({id})
       });
       const resData: ApiResponse<any> = await res.json();
-      console.log(resData)
+      
       if (resData.success) {
-        // Set the fetched data to state so the modal can render it
         setStatData(resData.data);
       } else {
         showToast({
@@ -124,190 +133,224 @@ export default function AllUrls() {
   };
 
   return (
-    <div className="w-full bg-zinc-800 max-w-full mx-auto p-4 md:p-8 animate-in fade-in duration-500">
+    // Outer container set to exact viewport height (h-[100dvh]) to prevent global scrolling
+    <div className="flex flex-col w-full h-[100dvh] max-h-screen bg-zinc-800 p-4 md:p-6 overflow-hidden animate-in fade-in duration-500 font-sans">
       
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+      {/* Header Section - Shrinks if necessary but usually takes fixed height */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+          <h1 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
             Your Links
           </h1>
-          <p className="text-sm text-zinc-400 mt-2">Manage, share, and track your shortened URLs.</p>
+          <p className="text-xs text-zinc-400 mt-1">Manage, share, and track your shortened URLs.</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {urls !== null && urls.length > 0 && (
             <button 
               onClick={handleExport}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200 text-zinc-400 text-sm font-medium rounded-xl transition-all shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-zinc-900/50 border border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200 text-zinc-400 text-xs font-medium rounded-lg transition-all shadow-sm"
             >
-              <DownloadIcon className="w-4 h-4" /> Export CSV
+              <DownloadIcon className="w-3.5 h-3.5" /> Export CSV
             </button>
           )}
           <Link 
             href="/dashboard/create" 
-            className="group relative inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 overflow-hidden"
+            className="group relative inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-indigo-500/20 overflow-hidden"
           >
             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
-            <PlusIcon className="w-4 h-4" /> Create New
+            <PlusIcon className="w-3.5 h-3.5" /> Create New
           </Link>
         </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-center justify-between animate-in slide-in-from-top-2">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs flex items-center justify-between shrink-0 animate-in slide-in-from-top-2">
           <span className="font-medium">{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400/70 hover:text-red-400 text-xl font-bold transition-colors">&times;</button>
+          <button onClick={() => setError(null)} className="text-red-400/70 hover:text-red-400 text-lg font-bold transition-colors">&times;</button>
         </div>
       )}
 
-      {/* URLs Table Container */}
-      <div className="bg-zinc-900/40 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/50 border border-zinc-800 overflow-hidden">
+      {/* Main Table Layout container taking up remaining height */}
+      <div className="flex flex-col flex-1 min-h-0 bg-zinc-900/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/50 border border-zinc-800 overflow-hidden">
         {isLoading && (!urls || urls.length === 0) ? (
-          <div className="p-8 flex flex-col gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-16 bg-zinc-800/50 rounded-xl w-full animate-pulse" />
+          <div className="p-6 flex flex-col gap-3 flex-1">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-12 bg-zinc-800/50 rounded-lg w-full animate-pulse" />
             ))}
           </div>
         ) : (urls !== null && urls.length > 0) ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider text-xs font-semibold">
-                <tr>
-                  <th className="px-6 py-5">Short Link</th>
-                  <th className="px-6 py-5">Original URL</th>
-                  <th className="px-6 py-5 text-center">Clicks</th>
-                  <th className="px-6 py-5 text-center">Created On</th>
-                  <th className="px-6 py-5 text-center">Expires On</th>
-                  <th className="px-6 py-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              
-              <tbody className="divide-y divide-zinc-800/50">
-                {urls.map((url: URLS) => {
-                  const fullShortUrl = `${API_URLS.BASE_URL}/${url.shortnedUrl}`;
-                  return (
-                    <tr key={url.id} className="hover:bg-zinc-800/40 transition-colors group">
-                      <td className="px-6 py-4">
-                        <a 
-                          href={fullShortUrl} target="_blank" rel="noopener noreferrer"
-                          className="text-indigo-400 font-medium hover:text-indigo-300 transition-colors flex items-center gap-2"
-                        >
-                          {fullShortUrl}
-                        </a>
-                      </td>
-                      
-                      <td className="px-6 py-4">
-                        <div className="max-w-[200px] md:max-w-sm truncate text-zinc-500" title={url.originalUrl}>
-                          {url.originalUrl}
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20">
-                          {url.clicks || 0}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button 
-                          className="inline-flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20 transition-colors"
-                          onClick={async () => await getFullStat(url.id)}  
-                        >
-                          Full Stat
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20">
-                          {new Date(url.createdAt).toDateString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium text-xs shadow-inner shadow-black/20">
-                          {url.expiresAt? new Date(url.expiresAt).toDateString() : "Forever"}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+          <>
+            {/* Scrollable Table Area */}
+            <div className="flex-1 overflow-auto custom-scrollbar">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead className="sticky top-0 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold z-10">
+                  <tr>
+                    <th className="px-5 py-4">Short Link</th>
+                    <th className="px-5 py-4">Original URL</th>
+                    <th className="px-5 py-4 text-center">Clicks</th>
+                    <th className="px-5 py-4 text-center">Stats</th>
+                    <th className="px-5 py-4 text-center">Created</th>
+                    <th className="px-5 py-4 text-center">Expires</th>
+                    <th className="px-5 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                
+                <tbody className="divide-y divide-zinc-800/50">
+                  {urls.map((url: URLS) => {
+                    const fullShortUrl = `${API_URLS.BASE_URL}/${url.shortnedUrl}`;
+                    return (
+                      <tr key={url.id} className="hover:bg-zinc-800/40 transition-colors group">
+                        <td className="px-5 py-3">
+                          <a 
+                            href={fullShortUrl} target="_blank" rel="noopener noreferrer"
+                            className="text-indigo-400 font-medium hover:text-indigo-300 transition-colors flex items-center gap-2 text-[13px]"
+                          >
+                            {fullShortUrl}
+                          </a>
+                        </td>
+                        
+                        <td className="px-5 py-3">
+                          <div className="max-w-[150px] md:max-w-[250px] truncate text-zinc-500" title={url.originalUrl}>
+                            {url.originalUrl}
+                          </div>
+                        </td>
+                        
+                        <td className="px-5 py-3 text-center">
+                          <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-2.5 py-0.5 rounded-full font-medium">
+                            {url.clicks || 0}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
                           <button 
-                            className="p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 rounded-lg transition-all" 
-                            title="Copy to clipboard"
-                            onClick={() => navigator.clipboard.writeText(fullShortUrl)}
+                            className="inline-flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 px-2.5 py-1 rounded-full font-medium transition-colors"
+                            onClick={async () => await getFullStat(url.id)}  
                           >
-                            <CopyIcon className="w-4 h-4" />
+                            Full Stat
                           </button>
-                          <button
-                            className="p-2 text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-all" 
-                            title="Generate QR"
-                            onClick={() => generateQR(fullShortUrl)}
-                          >
-                            <QrCodeIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all" 
-                            title="Delete URL"
-                            onClick={() => handleDeleteUrl(url.id)}
-                          >
-                            <Trash2Icon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
-            <div className="h-20 w-20 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600 mb-6 shadow-inner shadow-black/20">
-              <Link2Off className="w-10 h-10" />
+                        </td>
+                        <td className="px-5 py-3 text-center text-zinc-400">
+                          {new Date(url.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </td>
+                        <td className="px-5 py-3 text-center text-zinc-400">
+                           {url.expiresAt? new Date(url.expiresAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : "Forever"}
+                        </td>
+
+                        <td className="px-5 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              className="p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 rounded-md transition-all" 
+                              title="Copy to clipboard"
+                              onClick={() => navigator.clipboard.writeText(fullShortUrl)}
+                            >
+                              <CopyIcon className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              className="p-1.5 text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-md transition-all" 
+                              title="Generate QR"
+                              onClick={() => generateQR(fullShortUrl)}
+                            >
+                              <QrCodeIcon className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-all" 
+                              title="Delete URL"
+                              onClick={() => handleDeleteUrl(url.id)}
+                            >
+                              <Trash2Icon className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-            <h3 className="text-xl font-bold text-zinc-200 mb-2">No links created yet</h3>
-            <p className="text-sm text-zinc-500 mb-8 max-w-sm leading-relaxed">
-              You haven't shortened any URLs yet. Create your first short link to start managing and tracking it here.
+
+            {/* Pagination Controls Fixed at Bottom of Table */}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-zinc-800 bg-zinc-900/80 shrink-0">
+              <span className="text-xs text-zinc-500 font-medium">
+                Page {page}
+              </span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                  disabled={page === 1}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-zinc-800 text-zinc-300 text-xs font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeftIcon className="w-3.5 h-3.5" /> Prev
+                </button>
+                <button 
+                  onClick={() => setPage(prev => prev + 1)}
+                  // You can add logic to disable Next if urls.length < limit per page
+                  disabled={urls.length === 0} 
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-zinc-800 text-zinc-300 text-xs font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Next <ChevronRightIcon className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div className="h-16 w-16 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-600 mb-4 shadow-inner">
+              <Link2Off className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-bold text-zinc-200 mb-1">No links found</h3>
+            <p className="text-xs text-zinc-500 mb-6 max-w-sm leading-relaxed">
+              {page > 1 ? "You've reached the end of the list." : "You haven't shortened any URLs yet. Create your first short link to start managing and tracking it here."}
             </p>
-            <Link 
-              href="/dashboard/create" 
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
-            >
-              Create Your First Link
-            </Link>
+            {page === 1 ? (
+              <Link 
+                href="/dashboard/create" 
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-md"
+              >
+                Create Your First Link
+              </Link>
+            ) : (
+              <button 
+                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg transition-colors"
+              >
+                Go Back
+              </button>
+            )}
           </div>
         )}
       </div>
 
       {/* QR Code Modal Popup */}
       {qr && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center gap-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 max-w-[300px] w-full shadow-2xl flex flex-col items-center gap-5 animate-in zoom-in-95 duration-200">
             <div className="w-full flex justify-between items-center">
-              <h3 className="text-lg font-bold text-zinc-200">Scan QR Code</h3>
+              <h3 className="text-base font-bold text-zinc-200">Scan QR Code</h3>
               <button 
                 onClick={() => setQr(null)} 
-                className="text-zinc-500 hover:text-zinc-300 text-2xl font-light transition-colors"
+                className="text-zinc-500 hover:text-zinc-300 text-xl font-light transition-colors leading-none"
               >
                 &times;
               </button>
             </div>
             
-            <div className="bg-white p-3 rounded-2xl border-4 border-zinc-800 shadow-inner">
-              <img src={qr} alt="Generated QR Code" className="w-56 h-56 object-contain" />
+            <div className="bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-inner">
+              <img src={qr} alt="Generated QR Code" className="w-48 h-48 object-contain" />
             </div>
             
-            <div className="flex gap-3 w-full mt-2">
+            <div className="flex gap-2 w-full mt-1">
               <button 
                 onClick={() => setQr(null)} 
-                className="flex-1 bg-zinc-800 text-zinc-300 py-3 rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors"
+                className="flex-1 bg-zinc-800 text-zinc-300 py-2 rounded-lg text-xs font-semibold hover:bg-zinc-700 transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={downloadQR} 
-                className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
+                className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-indigo-500 transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-indigo-500/20"
               >
-                <DownloadIcon className="w-4 h-4" /> Download
+                <DownloadIcon className="w-3.5 h-3.5" /> Download
               </button>
             </div>
           </div>

@@ -12,7 +12,7 @@ type URLStore = {
     removeUrl:(id: number) => void,
     addUrl: (url: URLS) => void
     setHydrated: (value: boolean) => void
-    getUrls: () => Promise<void>
+    getUrls: (page: number) => Promise<void>
 }
 
 export const useURLStore = create<URLStore>()(
@@ -33,8 +33,8 @@ export const useURLStore = create<URLStore>()(
                 }))
             },
             setHydrated: (value) => set({hydrated: value}),
-            getUrls: async () => {
-                const urlsFetched = await fetchUrls()
+            getUrls: async (page) => {
+                const urlsFetched = await fetchUrls(page)
                 if(!urlsFetched){
                     set({urls: null})
                     return
