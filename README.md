@@ -1,9 +1,8 @@
 # 🔗 URL Shortener --- Frontend
 
-A modern frontend for a full-stack URL management platform. The
-application provides authenticated URL management, premium link
-controls, analytics, visitor logs, QR-code generation, and a polished
-dashboard experience.
+A modern frontend for a full-stack URL management platform with
+authentication, URL management, premium features, analytics, visitor
+tracking, QR-code generation, and a production dashboard.
 
 ## ✨ Features
 
@@ -13,7 +12,7 @@ dashboard experience.
 -   Copy shortened URLs
 -   Search URLs
 -   Paginated URL listings
--   Delete and update URLs
+-   Update and delete URLs
 -   Custom aliases for Premium users
 -   Custom-alias availability checking
 -   Configurable expiration by duration or specific date
@@ -22,7 +21,7 @@ dashboard experience.
 
 ### Dashboard & Analytics
 
--   Centralized URL dashboard
+-   URL management dashboard
 -   Click counts
 -   Analytics overview
 -   Click history
@@ -30,14 +29,14 @@ dashboard experience.
 -   Device/browser information
 -   Referrer tracking
 -   Creation and expiration information
--   Link management actions
+-   Per-link analytics
 
 ### Authentication
 
 -   User registration
 -   Login
 -   JWT-based authentication
--   Protected application routes
+-   Protected routes
 -   User-specific URL management
 -   Forgot-password flow
 -   Logout
@@ -48,74 +47,36 @@ dashboard experience.
 -   Dark-themed interface
 -   Custom toast notifications
 -   Loading states
--   Buttons disabled during asynchronous mutations
--   Protection against accidental double submissions
+-   Disabled actions during mutations
+-   Duplicate-submission prevention
 -   Keyboard-friendly interactions
 -   Accessibility-focused UI
 -   Search and pagination
--   QR-code workflow
-
-> Responsive/mobile optimization is being improved as part of the
-> project's ongoing UI polish.
-
-------------------------------------------------------------------------
-
-## 🖥️ Application Screens
-
-### Landing Page
-
-Introduces the URL shortening platform and provides clear paths to
-registration and login.
-
-### Dashboard
-
-Provides URL management, search, pagination, click counts, expiration
-information, copying, QR-code access, editing, and deletion.
-
-### Create Short URL
-
-Provides advanced URL configuration including Premium custom aliases and
-expiration controls.
-
-### Analytics
-
-Visualizes click activity and provides link performance information.
-
-### Visitor Logs
-
-Displays detailed visit information including timestamps, device/browser
-data, and referrer information.
-
-------------------------------------------------------------------------
 
 ## 🧰 Tech Stack
 
 -   React
 -   TanStack Query
--   Modern JavaScript/TypeScript frontend tooling
+-   JavaScript
+-   REST API
+-   JWT authentication
 -   Custom UI components
--   REST API integration
--   JWT authentication flow
 
-> Update this section with the exact framework/build tool names used in
-> the repository, such as Vite, if applicable.
+## 🏗️ Architecture
 
-------------------------------------------------------------------------
-
-## 🏗️ Frontend Architecture
-
-The frontend communicates with a separately deployed backend API.
+The frontend communicates with a separately deployed REST API.
 
 ``` text
 ┌──────────────────────────┐
 │       React Frontend     │
 │                          │
 │  Pages / Components      │
-│  Forms / Dashboard       │
+│  Dashboard               │
 │  Authentication UI       │
 │  Analytics UI            │
+│  Forms                   │
 │                          │
-│       TanStack Query     │
+│      TanStack Query      │
 └────────────┬─────────────┘
              │
              │ REST API
@@ -126,93 +87,66 @@ The frontend communicates with a separately deployed backend API.
 └──────────────────────────┘
 ```
 
-TanStack Query is used for server-state management, asynchronous
-requests, caching where appropriate, and mutation handling.
-
-------------------------------------------------------------------------
-
 ## 🔐 Authentication
 
-The frontend integrates with the backend's JWT authentication system.
+The frontend integrates with the backend JWT authentication system.
 
-Protected application areas require an authenticated user. API responses
-and authentication failures are surfaced to the user through the
-application's notification system.
+Protected application areas require authentication, while user-specific
+data is loaded through authenticated API requests.
 
-The frontend also respects Premium feature availability when presenting
-gated functionality such as custom aliases.
+Premium-only functionality is presented according to the user's account
+status.
 
-------------------------------------------------------------------------
+## ⚡ Loading & Error Handling
 
-## ⚡ Loading & Error States
-
-Asynchronous operations provide explicit UI feedback.
-
-Examples include:
+The application provides feedback during asynchronous operations:
 
 -   Loading states
--   Disabled action buttons during requests
--   Prevention of duplicate submissions
--   Success toasts
--   Backend error messages displayed through custom toasts
+-   Disabled buttons during requests
+-   Duplicate-submission prevention
+-   Success notifications
+-   Backend error messages through custom toast notifications
 -   Validation feedback
--   Graceful handling of failed API requests
+-   Graceful API error handling
 
-------------------------------------------------------------------------
+TanStack Query is used for server-state management and asynchronous
+mutations.
+
+## 📱 Accessibility & UI
+
+The interface includes accessibility-focused form and interaction
+patterns, keyboard-friendly controls, clear feedback states, and a
+consistent dark-themed design.
 
 ## 🔌 Backend API
 
-The frontend requires the URL Shortener backend API to be running.
+The frontend consumes the URL Shortener REST API.
 
-Configure the backend/API base URL through environment variables rather
-than hard-coding deployment-specific URLs.
-
-Example:
-
-``` env
-VITE_API_BASE_URL="YOUR_BACKEND_API_URL"
-```
-
-Use the exact environment variable name expected by the project.
-
-------------------------------------------------------------------------
+The production frontend communicates with the deployed backend over
+HTTPS.
 
 ## 🚀 Local Development
 
-### 1. Clone the repository
-
-``` bash
-git clone YOUR_FRONTEND_REPOSITORY_URL
-cd YOUR_FRONTEND_DIRECTORY
-```
-
-### 2. Install dependencies
+### Install dependencies
 
 ``` bash
 npm install
 ```
 
-### 3. Configure environment variables
+### Configure environment variables
 
-Create the appropriate `.env` file and configure the backend API URL.
+Create the required frontend environment file and configure the backend
+API URL used by the application.
 
-### 4. Start the development server
+### Start the development server
 
 ``` bash
 npm run dev
 ```
 
-The frontend will run using the development configuration and
-communicate with the configured backend API.
-
-------------------------------------------------------------------------
-
 ## 🌐 Deployment
 
 The frontend is deployed on **Vercel**.
-
-Production configuration points the frontend to the deployed backend
-API.
 
 ``` text
 Frontend
@@ -224,40 +158,22 @@ Backend API
 Render
 ```
 
-Production traffic uses HTTPS.
+Production communication uses HTTPS.
 
-------------------------------------------------------------------------
+## 📸 Application
 
-## 📸 Portfolio
+The frontend provides:
 
-This frontend is part of a full-stack URL Shortener project.
-
-The complete application includes:
-
--   URL shortening
--   Authentication
--   Premium features
--   URL management
--   Analytics
--   Visitor tracking
--   QR codes
--   Expiration
--   Password-protected links
--   Rate limiting
--   Production PostgreSQL database
-
-------------------------------------------------------------------------
-
-## 🔮 Future Improvements
-
--   Further mobile/responsive UI optimization
--   Optional light/dark theme switching
--   Additional analytics visualizations
--   Improved link preview experience
-
-------------------------------------------------------------------------
+-   Landing page
+-   Authentication screens
+-   URL creation
+-   URL dashboard
+-   Search and pagination
+-   Analytics dashboard
+-   Visitor logs
+-   Premium URL controls
+-   QR-code workflow
 
 ## 📄 License
 
-Add the project's preferred license here if the repository is intended
-for public distribution.
+This project is a portfolio project.
