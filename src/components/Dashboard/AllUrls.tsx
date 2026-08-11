@@ -33,7 +33,7 @@ export default function AllUrls() {
   const [qr, setQr] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [statData, setStatData] = useState<UrlStatData | null>(null);
-
+  const [qrUrl, setQrUrl] = useState<string>("")
   const { urls, hydrated, getUrls, removeUrl } = useURLStore();
   const { showToast } = useToast();
 
@@ -101,6 +101,7 @@ export default function AllUrls() {
 
   const generateQR = async (url: string) => {
     try {
+      setQrUrl(url)
       const dataUrl = await QRCode.toDataURL(url, {
         margin: 2,
         width: 200,
@@ -109,6 +110,7 @@ export default function AllUrls() {
       setQr(dataUrl);
     } catch (err) {
       setError("Failed to generate QR Code");
+      setQrUrl("")
     }
   };
 
@@ -413,6 +415,11 @@ export default function AllUrls() {
             <div className="bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-inner">
               <img src={qr} alt="Generated QR Code" className="w-48 h-48 object-contain" />
             </div>
+
+            <span 
+              className="h-full w-full text-center text-xs text-emerald-500"
+              >{qrUrl}
+            </span>
 
             <div className="flex gap-2 w-full mt-1">
               <button
