@@ -13,7 +13,7 @@ export default function SigninPage() {
   const router = useRouter();
   
   // Form state (left default values as in your original code for testing)
-  const [formData, setFormData] = useState<SignupFormData>({ email: "john@gmail.com", password: "John@123" });
+  const [formData, setFormData] = useState<SignupFormData>({ email: "john@gmail.com", password: "abcdef" });
   const [errors, setErrors] = useState<{ email?: string; password?: string; server?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const signin = useAuthStore(state => state.signin);
