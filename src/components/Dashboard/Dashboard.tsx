@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import { useURLStore } from "@/store/urlStore";
-import { useToast } from "../Toast";
+import { useToast } from "../ui/Toast";
 import UrlStatsModal from "@/components/Dashboard/UrlStatsModal";
 import { UrlStatData } from "@/types";
 

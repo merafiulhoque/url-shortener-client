@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Zap, ShieldCheck, BarChart3, Clock, ChevronDown, Calendar, Hourglass, Type, Link as LinkIcon, Lock } from "lucide-react"
 import { useURLStore } from "@/store/urlStore"
-import { useToast } from "../Toast"
+import { useToast } from "../ui/Toast"
 import UrlInput, { ActionButton, BackButton } from "../ui/Input"
 import { useAuthStore } from "@/store/authStrore"
 

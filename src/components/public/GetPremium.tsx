@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ApiResponse } from '@/types';
-import { useToast } from './Toast';
+import { useToast } from '../ui/Toast';
 import { useAuthStore } from '@/store/authStrore';
 
 const loadRazorpayScript = () => {

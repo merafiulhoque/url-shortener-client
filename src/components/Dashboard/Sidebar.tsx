@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PencilIcon, ChartBarIncreasing, Unlink } from "lucide-react";
+import { PencilIcon, ChartBarIncreasing, Unlink, MenuIcon, Settings2Icon} from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -24,6 +24,16 @@ export default function Sidebar() {
       href: "/dashboard/analytics",
       icon: <ChartBarIncreasing className="w-5 h-5" />,
     },
+    {
+      name: "Bulk Process",
+      href: "/dashboard/bulk-process",
+      icon: <MenuIcon className="w-5 h-5" />
+    },
+    {
+      name: "Bulk Jobs",
+      href: "/dashboard/bulk-jobs",
+      icon: <Settings2Icon className="w-5 h-5"/>
+    }
   ];
 
   return (

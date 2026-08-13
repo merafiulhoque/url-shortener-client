@@ -9,7 +9,7 @@ import Image from "next/image";
 import { DeleteIcon, LogOutIcon, RecycleIcon, Trash2Icon, UploadCloud, Search } from "lucide-react";
 import UploadModal from "./UploadPicModal";
 import { ApiResponse } from "@/types";
-import { useToast } from "../Toast";
+import { useToast } from "../ui/Toast";
 import { getPublicId } from "@/actions/getPublicId";
 import { ROUTES } from "@/constants";
 

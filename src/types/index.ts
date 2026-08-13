@@ -78,3 +78,10 @@ export interface UrlStatData {
     expiresAt?: Date
     visitors?: Visitor[]
 }
+
+export interface BULK_JOB {
+    status: any;
+    filePath: string;
+    id: number;
+    userId: number;
+}
