@@ -12,11 +12,11 @@ export const API_URLS = {
     DELETE_SHORT_URL: `${BASE_URL}/api/urls/delete-url`,
     GET_USER: `${BASE_URL}/api/auth/get-user`,
     UPLOAD_PIC: `${BASE_URL}/api/uploads/upload`,
-    UPLOAD_TXT: `${BASE_URL}/api/uploads/upload-txt`,
     DELETE_PIC: `${BASE_URL}/api/uploads/delete`,
     CREATE_PAYMENT_ORDER: `${BASE_URL}/api/payments/create-order`,
     VERIFY_PAYMENT: `${BASE_URL}/api/payments/verify-payment`,
     GET_STAT: `${BASE_URL}/api/urls/get-stat`,
+    ASSIGN_BULK_JOB: `${BASE_URL}/api/urls/bulk/text`,
     GET_BULK_JOBS: `${BASE_URL}/api/urls/bulk/jobs`
 } as const;
 

@@ -19,7 +19,7 @@ export async function uploadTxtFile(file: File): Promise<ApiResponse<null>>{
         const formData = new FormData()
         formData.append("text", file)
 
-        const res = await fetch(API_URLS.UPLOAD_TXT, {
+        const res = await fetch(API_URLS.ASSIGN_BULK_JOB, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`
