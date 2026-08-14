@@ -2,14 +2,13 @@
 import { ApiResponse, URLS } from "@/types";
 import { getToken } from "./getToken";
 import { NextResponse } from "next/server";
-import { RES_UNAUTHORIZED } from "@/constants/HttpResponseConstants";
 
 
 export const fetchUrls = async (page: number) => {
       try {
         const token = await getToken()
         if(!token){
-          return RES_UNAUTHORIZED
+          throw new Error("Unauthorized")
         }
         const response = await fetch("/api/url/get-all-url",{
           method: "POST",
@@ -30,7 +29,7 @@ export const fetchUrls = async (page: number) => {
       try {
         const token = await getToken()
         if(!token){
-          return RES_UNAUTHORIZED
+          throw new Error("Unauthorized")
         }
         const response = await fetch("/api/url/get-all-url",{
           method: "GET",
