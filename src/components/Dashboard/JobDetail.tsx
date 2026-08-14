@@ -49,7 +49,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
     }
 
     // Determine if we can import URLs (Allow on absolute success or partial error)
-    const canImport = job.status === BulkJobStatus.COMPLETED || job.status === BulkJobStatus.COMPLETED_WITH_ERROR;
+    const canImport = job.status === BulkJobStatus.COMPLETED || job.status === BulkJobStatus.COMPLETED_WITH_ERRORS;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
