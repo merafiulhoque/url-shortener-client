@@ -79,9 +79,25 @@ export interface UrlStatData {
     visitors?: Visitor[]
 }
 
+export enum BulkJobStatus {
+    COMPLETED = "COMPLETED",
+    PROCESSING = "PROCESSING",
+    COMPLETED_WITH_ERRORS = "COMPLETED_WITH_ERRORS"
+}
+
 export interface BULK_JOB {
-    status: any;
+    status: BulkJobStatus;
     filePath: string;
     id: number;
     userId: number;
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface DOWNLOAD_ERROR_LOG {
+    success: boolean
+    message: string
+    data: string
+    fileName: string
+    contentType: string
 }

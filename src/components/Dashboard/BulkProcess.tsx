@@ -21,15 +21,11 @@ export default function BulkProcess() {
     }, [hydrated, user])
 
     async function handleFileUpload() {
-        try {
-            if (!file) throw new Error("No file selected")
-            
-            // Assuming uploadTxtFile handles both or you will branch this later
-            const resData = await uploadTxtFile(file)
-            return resData
-        } catch (error) {
-            throw error
-        }
+        if (!file) throw new Error("No file selected")
+        
+        const resData = await uploadTxtFile(file)
+        return resData
+    
     }
 
     function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -48,7 +44,7 @@ export default function BulkProcess() {
         if (user?.isPremium) {
             if (!isTxt && !isCsv) {
                 showToast({
-                    text: "Invalid format. Premium users can upload .txt or .csv",
+                    text: "Invalid format, Only .txt are allowed",
                     bgColor: "red",
                     duration: 3000
                 })
@@ -92,6 +88,7 @@ export default function BulkProcess() {
             setTimeout(() => {
                 window.location.reload()
             }, 1000);
+            
         },
         onError: function(err: any) {
             showToast({
@@ -116,7 +113,7 @@ export default function BulkProcess() {
             <div className="w-full max-w-2xl bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 rounded-3xl p-6 md:p-8 shadow-2xl mt-10">
                 
                 <div className="mb-8 text-center space-y-2">
-                    <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-cyan-400">
                         Bulk Upload
                     </h1>
                     <p className="text-zinc-400 text-sm">
@@ -137,9 +134,9 @@ export default function BulkProcess() {
                             disabled={mutation.isPending}
                             className="block w-full text-sm text-zinc-400
                                 file:mr-4 file:py-3 file:px-4
-                                file:rounded-lg file:border-0
+                                file:rounded-lg file:border
                                 file:text-sm file:font-semibold
-                                file:bg-zinc-900 file:text-indigo-400 file:border file:border-zinc-800
+                                file:bg-zinc-900 file:text-indigo-400 file:border-zinc-800
                                 hover:file:bg-indigo-500/10 hover:file:border-indigo-500/30 file:transition-all
                                 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                         />

@@ -1,14 +1,12 @@
 import { API_URLS } from "@/constants";
 import { getToken } from "./getToken";
+import { RES_UNAUTHORIZED } from "@/constants/HttpResponseConstants";
 
 export async function getBulkJobs(){
     try {
         const token = await getToken()
         if(!token){
-            return {
-                success: false,
-                message: "Unauthorized"
-            }
+            return RES_UNAUTHORIZED
         }
 
         const res = await fetch(
@@ -20,6 +18,7 @@ export async function getBulkJobs(){
             }
         )
         const resData = await res.json()
+        console.log(resData)
         return resData
     } catch (error) {
         return {

@@ -3,15 +3,13 @@
 import { API_URLS } from "@/constants";
 import { ApiResponse } from "@/types";
 import { getToken } from "./getToken";
+import { RES_UNAUTHORIZED } from "@/constants/HttpResponseConstants";
 
 export async function uploadTxtFile(file: File): Promise<ApiResponse<null>>{
     try {
         const token = await getToken()
         if(!token){
-            return {
-                success: false,
-                message: "Unauthorized"
-            }
+            return RES_UNAUTHORIZED
         }
         if(!file) throw new Error("No file uploaded")
 

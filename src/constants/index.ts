@@ -17,7 +17,10 @@ export const API_URLS = {
     VERIFY_PAYMENT: `${BASE_URL}/api/payments/verify-payment`,
     GET_STAT: `${BASE_URL}/api/urls/get-stat`,
     ASSIGN_BULK_JOB: `${BASE_URL}/api/urls/bulk/text`,
-    GET_BULK_JOBS: `${BASE_URL}/api/urls/bulk/jobs`
+    GET_BULK_JOBS: `${BASE_URL}/api/urls/bulk/jobs`,
+    GET_JOB_DETAIL: `${BASE_URL}/api/urls/bulk/jobs`,
+    DELETE_JOB_DETAIL: `${BASE_URL}/api/urls/bulk/jobs`,
+    DOWNLOAD_ERR_LOG: `${BASE_URL}/api/urls/bulk/jobs/error-log`
 } as const;
 
 export const ROUTES = {
