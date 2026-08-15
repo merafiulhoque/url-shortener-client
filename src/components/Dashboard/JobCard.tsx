@@ -91,26 +91,32 @@ export default function JobCard({ job, onDeleted }: JobCardProps) {
     const showImport = normalizedStatus === BulkJobStatus.COMPLETED || normalizedStatus === BulkJobStatus.COMPLETED_WITH_ERRORS;
 
     return (
-        <div className="flex flex-col bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-all duration-300 shadow-xl shadow-black/20 overflow-hidden">
+        <div className="flex flex-col bg-[#09090A] border border-white/5 hover:border-emerald-900/30 rounded-[24px] transition-all duration-500 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+            
+            {/* Subtle Inner Pattern & Hover Glow */}
+            <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#047857_1px,transparent_1px),linear-gradient(to_bottom,#047857_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0"></div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[100px] bg-emerald-500/[0.04] blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
             
             {/* Top Section: Job Info */}
-            <div className="p-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="flex flex-col gap-3 flex-1 min-w-0">
+            <div className="p-5 sm:p-6 flex flex-col md:flex-row md:items-start justify-between gap-4 relative z-10">
+                <div className="flex flex-col gap-4 flex-1 min-w-0">
                     <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono text-zinc-400 bg-zinc-950 px-2 py-1 rounded-md border border-zinc-800/80 uppercase font-semibold tracking-wider">
+                        <span className="text-[11px] font-mono text-zinc-500 bg-[#111113] px-2.5 py-1 rounded-md border border-white/5 uppercase font-bold tracking-widest shadow-inner">
                             ID #{job.id}
                         </span>
                         <JobStatusBadge status={job.status} />
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-indigo-400 shrink-0" />
-                        <span className="text-lg font-semibold text-zinc-100 truncate" title={job.filePath}>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 shadow-inner shrink-0">
+                            <FileText className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <span className="text-[16px] sm:text-lg font-bold text-white truncate" title={job.filePath}>
                             {job.filePath.split('/').pop() || job.filePath}
                         </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-zinc-500 font-medium mt-1">
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] text-zinc-500 font-medium mt-1">
                         <span className="flex items-center gap-1.5">
                             <CalendarDays className="w-3.5 h-3.5 opacity-70" />
                             Created: <span className="text-zinc-400">{formatDate(job.createdAt)}</span>
@@ -124,16 +130,16 @@ export default function JobCard({ job, onDeleted }: JobCardProps) {
             </div>
             
             {/* Bottom Section: Action Bar */}
-            <div className="flex flex-wrap items-center justify-end gap-3 p-4 bg-zinc-950/50 border-t border-zinc-800/50">
+            <div className="flex flex-wrap items-center justify-end gap-3 p-4 sm:p-5 bg-[#050505] border-t border-white/[0.06] relative z-10">
                 
                 {showDownloadLog && (
                     <button 
                         onClick={() => downloadMutation.mutate(job.id)}
                         disabled={downloadMutation.isPending}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-sm font-semibold transition-colors border border-amber-500/20 hover:border-amber-500/40 disabled:opacity-50"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#111113] hover:bg-amber-950/30 text-zinc-400 hover:text-amber-500 rounded-xl text-[13px] font-semibold transition-all border border-white/5 hover:border-amber-900/50 disabled:opacity-50 active:scale-[0.98] disabled:active:scale-100"
                     >
                         {downloadMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}
-                        Download Error Log
+                        Error Log
                     </button>
                 )}
 
@@ -141,7 +147,7 @@ export default function JobCard({ job, onDeleted }: JobCardProps) {
                     <button 
                         onClick={() => importMutation.mutate(job.id)}
                         disabled={importMutation.isPending}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:bg-zinc-800 disabled:text-zinc-500"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white rounded-xl text-[13px] font-bold transition-all disabled:opacity-50 disabled:from-[#111113] disabled:to-[#111113] disabled:text-zinc-500 disabled:border-white/5 shadow-[0_4px_12px_rgba(16,185,129,0.2)] disabled:shadow-none active:scale-[0.98] disabled:active:scale-100"
                     >
                         {importMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
                         Import URLs
@@ -151,7 +157,7 @@ export default function JobCard({ job, onDeleted }: JobCardProps) {
                 <button 
                     onClick={() => deleteMutation.mutate(job.id)}
                     disabled={deleteMutation.isPending}
-                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-sm font-semibold transition-colors border border-rose-500/10 hover:border-rose-500/30 disabled:opacity-50"
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#111113] hover:bg-red-950/30 text-zinc-400 hover:text-red-500 rounded-xl text-[13px] font-semibold transition-all border border-white/5 hover:border-red-900/50 disabled:opacity-50 active:scale-[0.98] disabled:active:scale-100"
                 >
                     {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     Delete

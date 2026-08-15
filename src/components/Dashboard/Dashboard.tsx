@@ -22,9 +22,6 @@ import { useToast } from "../ui/Toast";
 import UrlStatsModal from "@/components/Dashboard/UrlStatsModal";
 import { UrlStatData } from "@/types";
 
-// Must match the page size returned by the API / store so we can reliably
-// tell whether another page exists without an extra request.
-// Backend returns 10 entries per page.
 const PAGE_LIMIT = 10;
 
 export default function AllUrls() {
@@ -33,11 +30,10 @@ export default function AllUrls() {
   const [qr, setQr] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [statData, setStatData] = useState<UrlStatData | null>(null);
-  const [qrUrl, setQrUrl] = useState<string>("")
+  const [qrUrl, setQrUrl] = useState<string>("");
   const { urls, hydrated, getUrls, removeUrl } = useURLStore();
   const { showToast } = useToast();
 
-  // Fetch URLs whenever the page changes
   useEffect(() => {
     if (!hydrated) return;
 
@@ -50,8 +46,6 @@ export default function AllUrls() {
     fetchUrls();
   }, [hydrated, page, getUrls]);
 
-  // A full page means there could be more results; a short page means we've
-  // hit the end of the list.
   const hasNextPage = !!urls && urls.length === PAGE_LIMIT;
   const rowCount = urls?.length ?? 0;
   const paddingRows = Math.max(PAGE_LIMIT - rowCount, 0);
@@ -70,7 +64,6 @@ export default function AllUrls() {
         setError(response.message);
       } else {
         removeUrl(id);
-        // Optional: refresh if the current page becomes empty
         if (urls && urls.length === 1 && page > 1) {
           setPage((prev) => prev - 1);
         }
@@ -101,16 +94,17 @@ export default function AllUrls() {
 
   const generateQR = async (url: string) => {
     try {
-      setQrUrl(url)
+      setQrUrl(url);
       const dataUrl = await QRCode.toDataURL(url, {
         margin: 2,
         width: 200,
-        color: { dark: "#09090b", light: "#ffffff" },
+        // Match QR code to the emerald theme
+        color: { dark: "#047857", light: "#ffffff" },
       });
       setQr(dataUrl);
     } catch (err) {
       setError("Failed to generate QR Code");
-      setQrUrl("")
+      setQrUrl("");
     }
   };
 
@@ -152,73 +146,77 @@ export default function AllUrls() {
   };
 
   return (
-    // Outer container set to exact viewport height (h-[100dvh]) to prevent global scrolling
-    <div className="flex flex-col w-full h-full min-h-0 bg-zinc-800 p-3 md:p-4 overflow-hidden animate-in fade-in duration-500 font-sans">
+    <div className="flex flex-col w-full h-full min-h-0 bg-[#000000] p-3 md:p-6 overflow-hidden animate-in fade-in duration-500 font-sans selection:bg-emerald-700/30 selection:text-emerald-200 z-0 relative">
+      
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-400 shadow-md shadow-indigo-500/30">
-            <LinkIcon className="w-4 h-4 text-white" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shrink-0 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0a0a0a] border-2 border-emerald-700/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+            <LinkIcon className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 leading-tight">
-              Your Links
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
+              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">Links</span>
             </h1>
-            <p className="text-[11px] text-zinc-400 mt-0.5">
+            <p className="text-[12px] sm:text-[13px] text-zinc-500 mt-0.5">
               Manage, share, and track your shortened URLs.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {urls !== null && urls.length > 0 && (
             <button
               onClick={handleExport}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-900/50 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 hover:text-zinc-200 text-zinc-400 text-xs font-medium rounded-lg transition-all shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#09090A] border border-white/5 hover:border-emerald-700/50 hover:bg-[#111113] text-zinc-300 text-[13px] font-medium rounded-xl transition-all shadow-sm active:scale-[0.98]"
             >
-              <DownloadIcon className="w-3.5 h-3.5" /> Export CSV
+              <DownloadIcon className="w-4 h-4" /> <span className="hidden sm:inline">Export CSV</span>
             </button>
           )}
           <Link
             href="/dashboard/create"
-            className="group relative inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-indigo-500/20 overflow-hidden"
+            className="group relative inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white text-[13px] font-bold rounded-xl transition-all shadow-[0_4px_12px_rgba(16,185,129,0.15)] overflow-hidden active:scale-[0.98]"
           >
             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
-            <PlusIcon className="w-3.5 h-3.5" /> Create New
+            <PlusIcon className="w-4 h-4 relative z-10" /> <span className="relative z-10">Create New</span>
           </Link>
         </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="mb-3 p-2.5 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs flex items-center justify-between shrink-0 animate-in slide-in-from-top-2">
+        <div className="mb-4 p-3 bg-red-950/30 border border-red-900/50 rounded-xl text-red-500 text-[13px] flex items-center justify-between shrink-0 animate-in slide-in-from-top-2 relative z-10">
           <span className="font-medium">{error}</span>
           <button
             onClick={() => setError(null)}
-            className="text-red-400/70 hover:text-red-400 text-lg font-bold transition-colors"
+            className="text-red-500/70 hover:text-red-400 text-lg font-bold transition-colors leading-none"
           >
             &times;
           </button>
         </div>
       )}
 
-      {/* Main Table Layout container — fixed height, no internal scrolling */}
-      <div className="flex flex-col flex-1 min-h-0 bg-zinc-900/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/50 border border-zinc-800 overflow-hidden">
+      {/* Main Table Layout container */}
+      <div className="flex flex-col flex-1 min-h-0 bg-[#09090A] rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-emerald-900/30 overflow-hidden relative z-10">
+        
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#047857_1px,transparent_1px),linear-gradient(to_bottom,#047857_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0"></div>
+
         {isLoading && (!urls || urls.length === 0) ? (
-          <div className="p-4 flex flex-col gap-2 flex-1">
+          <div className="p-4 flex flex-col gap-3 flex-1 relative z-10">
             {Array.from({ length: PAGE_LIMIT }).map((_, i) => (
               <div
                 key={i}
-                className="h-9 bg-zinc-800/50 rounded-lg w-full animate-pulse"
+                className="h-10 bg-white/[0.03] rounded-xl w-full animate-pulse"
                 style={{ animationDelay: `${i * 60}ms` }}
               />
             ))}
           </div>
         ) : urls !== null && urls.length > 0 ? (
           <>
-            {/* Fixed-layout table — height stays constant across pages, no scrollbar */}
-            <div className="flex-1 min-h-0">
-              <table className="w-full table-fixed text-left text-xs">
+            {/* Horizontal scroll on mobile, min-w prevents squishing */}
+            <div className="flex-1 min-h-0 overflow-x-auto custom-scrollbar relative z-10">
+              <table className="w-full min-w-[800px] table-fixed text-left text-[13px]">
                 <colgroup>
                   <col className="w-[20%]" />
                   <col className="w-[28%]" />
@@ -228,71 +226,71 @@ export default function AllUrls() {
                   <col className="w-[13%]" />
                   <col className="w-[8%]" />
                 </colgroup>
-                <thead className="bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold text-[10px]">
+                <thead className="bg-[#050505] border-b border-white/[0.06] text-zinc-400 uppercase tracking-wider font-semibold text-[11px]">
                   <tr>
-                    <th className="px-4 py-2.5">Short Link</th>
-                    <th className="px-4 py-2.5">Original URL</th>
-                    <th className="px-4 py-2.5 text-center">Clicks</th>
-                    <th className="px-4 py-2.5 text-center">Stats</th>
-                    <th className="px-4 py-2.5 text-center">Created</th>
-                    <th className="px-4 py-2.5 text-center">Expires</th>
-                    <th className="px-4 py-2.5 text-right">Actions</th>
+                    <th className="px-5 py-3.5">Short Link</th>
+                    <th className="px-5 py-3.5">Original URL</th>
+                    <th className="px-5 py-3.5 text-center">Clicks</th>
+                    <th className="px-5 py-3.5 text-center">Stats</th>
+                    <th className="px-5 py-3.5 text-center">Created</th>
+                    <th className="px-5 py-3.5 text-center">Expires</th>
+                    <th className="px-5 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-zinc-800/50">
+                <tbody className="divide-y divide-white/[0.04]">
                   {urls.map((url: URLS) => {
                     const fullShortUrl = `${API_URLS.BASE_URL}/${url.shortnedUrl}`;
                     return (
                       <tr
                         key={url.id}
-                        className="group h-10 border-l-2 border-transparent hover:border-l-indigo-500 hover:bg-zinc-800/40 transition-colors"
+                        className="group h-12 border-l-2 border-transparent hover:border-l-emerald-500 hover:bg-emerald-900/10 transition-colors"
                       >
-                        <td className="px-4 py-1.5 truncate">
+                        <td className="px-5 py-2 truncate">
                           <a
                             href={fullShortUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-indigo-400 font-medium hover:text-indigo-300 transition-colors truncate inline-block max-w-full text-xs"
+                            className="text-emerald-500 font-medium hover:text-emerald-400 transition-colors truncate inline-block max-w-full"
                             title={fullShortUrl}
                           >
                             {fullShortUrl}
                           </a>
                         </td>
 
-                        <td className="px-4 py-1.5">
+                        <td className="px-5 py-2">
                           <div
-                            className="truncate text-zinc-500"
+                            className="truncate text-zinc-400 group-hover:text-zinc-300 transition-colors"
                             title={url.originalUrl}
                           >
                             {url.originalUrl}
                           </div>
                         </td>
 
-                        <td className="px-4 py-1.5 text-center">
-                          <span className="inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-300 px-2 py-0.5 rounded-full font-medium min-w-[2rem]">
+                        <td className="px-5 py-2 text-center">
+                          <span className="inline-flex items-center justify-center bg-[#111113] border border-white/10 text-zinc-300 px-2.5 py-0.5 rounded-full font-medium min-w-[2.5rem]">
                             {url.clicks || 0}
                           </span>
                         </td>
-                        <td className="px-4 py-1.5 text-center">
+                        <td className="px-5 py-2 text-center">
                           <button
-                            className="inline-flex items-center justify-center h-6 w-6 bg-zinc-800 hover:bg-cyan-500/10 border border-zinc-700 hover:border-cyan-500/40 text-zinc-400 hover:text-cyan-400 rounded-full transition-colors"
+                            className="inline-flex items-center justify-center h-7 w-7 bg-[#111113] hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-zinc-400 hover:text-emerald-400 rounded-full transition-colors"
                             title="View full stats"
                             onClick={async () => await getFullStat(url.id)}
                           >
-                            <BarChart3Icon className="w-3 h-3" />
+                            <BarChart3Icon className="w-3.5 h-3.5" />
                           </button>
                         </td>
-                        <td className="px-4 py-1.5 text-center text-zinc-400 truncate">
+                        <td className="px-5 py-2 text-center text-zinc-500 truncate">
                           {new Date(url.createdAt).toLocaleDateString(undefined, {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
                           })}
                         </td>
-                        <td className="px-4 py-1.5 text-center truncate">
+                        <td className="px-5 py-2 text-center truncate">
                           {url.expiresAt ? (
-                            <span className="text-zinc-400">
+                            <span className="text-zinc-500">
                               {new Date(url.expiresAt).toLocaleDateString(undefined, {
                                 month: "short",
                                 day: "numeric",
@@ -300,32 +298,32 @@ export default function AllUrls() {
                               })}
                             </span>
                           ) : (
-                            <span className="text-emerald-400/80 font-medium">Forever</span>
+                            <span className="text-emerald-600/80 font-medium">Forever</span>
                           )}
                         </td>
 
-                        <td className="px-4 py-1.5 text-right">
-                          <div className="flex items-center justify-end gap-0.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                        <td className="px-5 py-2 text-right">
+                          <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-70 group-hover:opacity-100 transition-opacity">
                             <button
-                              className="p-1 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 rounded-md transition-all"
+                              className="p-1.5 text-zinc-500 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                               title="Copy to clipboard"
                               onClick={() => navigator.clipboard.writeText(fullShortUrl)}
                             >
-                              <CopyIcon className="w-3.5 h-3.5" />
+                              <CopyIcon className="w-4 h-4" />
                             </button>
                             <button
-                              className="p-1 text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-md transition-all"
+                              className="p-1.5 text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-all"
                               title="Generate QR"
                               onClick={() => generateQR(fullShortUrl)}
                             >
-                              <QrCodeIcon className="w-3.5 h-3.5" />
+                              <QrCodeIcon className="w-4 h-4" />
                             </button>
                             <button
-                              className="p-1 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-all"
+                              className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
                               title="Delete URL"
                               onClick={() => handleDeleteUrl(url.id)}
                             >
-                              <Trash2Icon className="w-3.5 h-3.5" />
+                              <Trash2Icon className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
@@ -333,10 +331,8 @@ export default function AllUrls() {
                     );
                   })}
 
-                  {/* Spacer rows keep the table height fixed across pages with fewer results,
-                      so the layout never jumps and nothing needs to scroll. */}
                   {Array.from({ length: paddingRows }).map((_, i) => (
-                    <tr key={`pad-${i}`} className="h-10" aria-hidden="true">
+                    <tr key={`pad-${i}`} className="h-12" aria-hidden="true">
                       <td colSpan={7} />
                     </tr>
                   ))}
@@ -344,16 +340,16 @@ export default function AllUrls() {
               </table>
             </div>
 
-            {/* Pagination Controls Fixed at Bottom of Table */}
-            <div className="flex items-center justify-between px-4 py-2 border-t border-zinc-800 bg-zinc-900/80 shrink-0">
-              <span className="text-[11px] text-zinc-500 font-medium">
-                Page {page} &middot; {rowCount} {rowCount === 1 ? "link" : "links"} shown
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-white/[0.06] bg-[#050505] shrink-0 relative z-10">
+              <span className="text-[12px] text-zinc-500 font-medium">
+                Page {page} &middot; {rowCount} {rowCount === 1 ? "link" : "links"}
               </span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                   disabled={page === 1 || isLoading}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#111113] border border-white/5 text-zinc-300 text-[12px] font-medium rounded-lg hover:bg-[#18181B] disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
                 >
                   <ChevronLeftIcon className="w-3.5 h-3.5" /> Prev
                 </button>
@@ -361,7 +357,7 @@ export default function AllUrls() {
                   onClick={() => setPage((prev) => prev + 1)}
                   disabled={!hasNextPage || isLoading}
                   title={!hasNextPage ? "You've reached the end of the list" : undefined}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#111113] border border-white/5 text-zinc-300 text-[12px] font-medium rounded-lg hover:bg-[#18181B] disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
                 >
                   Next <ChevronRightIcon className="w-3.5 h-3.5" />
                 </button>
@@ -369,12 +365,12 @@ export default function AllUrls() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div className="h-16 w-16 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-600 mb-4 shadow-inner">
-              <Link2Off className="w-8 h-8" />
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative z-10">
+            <div className="h-16 w-16 bg-[#050505] border border-white/5 rounded-2xl flex items-center justify-center text-zinc-600 mb-5 shadow-inner">
+              <Link2Off className="w-8 h-8 text-emerald-700/50" />
             </div>
-            <h3 className="text-lg font-bold text-zinc-200 mb-1">No links found</h3>
-            <p className="text-xs text-zinc-500 mb-6 max-w-sm leading-relaxed">
+            <h3 className="text-xl font-bold text-white mb-2">No links found</h3>
+            <p className="text-[13px] text-zinc-500 mb-8 max-w-sm leading-relaxed">
               {page > 1
                 ? "You've reached the end of the list."
                 : "You haven't shortened any URLs yet. Create your first short link to start managing and tracking it here."}
@@ -382,14 +378,14 @@ export default function AllUrls() {
             {page === 1 ? (
               <Link
                 href="/dashboard/create"
-                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-md"
+                className="px-6 py-3 bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white text-[13px] font-bold rounded-xl transition-all shadow-[0_4px_15px_rgba(16,185,129,0.15)] active:scale-[0.98]"
               >
                 Create Your First Link
               </Link>
             ) : (
               <button
                 onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded-lg transition-colors"
+                className="px-6 py-3 bg-[#111113] border border-white/10 hover:bg-[#18181B] text-white text-[13px] font-bold rounded-xl transition-colors active:scale-[0.98]"
               >
                 Go Back
               </button>
@@ -400,39 +396,40 @@ export default function AllUrls() {
 
       {/* QR Code Modal Popup */}
       {qr && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 max-w-[300px] w-full shadow-2xl flex flex-col items-center gap-5 animate-in zoom-in-95 duration-200">
-            <div className="w-full flex justify-between items-center">
-              <h3 className="text-base font-bold text-zinc-200">Scan QR Code</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#09090A] border border-emerald-900/30 rounded-2xl p-6 max-w-[320px] w-full shadow-2xl flex flex-col items-center gap-5 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/[0.03] to-transparent pointer-events-none" />
+            
+            <div className="w-full flex justify-between items-center relative z-10">
+              <h3 className="text-[15px] font-bold text-white">Scan QR Code</h3>
               <button
                 onClick={() => setQr(null)}
-                className="text-zinc-500 hover:text-zinc-300 text-xl font-light transition-colors leading-none"
+                className="text-zinc-500 hover:text-white text-xl font-light transition-colors leading-none"
               >
                 &times;
               </button>
             </div>
 
-            <div className="bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-inner">
+            <div className="bg-white p-2.5 rounded-xl border-4 border-[#111113] shadow-inner relative z-10">
               <img src={qr} alt="Generated QR Code" className="w-48 h-48 object-contain" />
             </div>
 
-            <span 
-              className="h-full w-full text-center text-xs text-emerald-500"
-              >{qrUrl}
+            <span className="w-full text-center text-[11px] text-emerald-500/80 truncate px-2 relative z-10">
+              {qrUrl}
             </span>
 
-            <div className="flex gap-2 w-full mt-1">
+            <div className="flex gap-3 w-full mt-2 relative z-10">
               <button
                 onClick={() => setQr(null)}
-                className="flex-1 bg-zinc-800 text-zinc-300 py-2 rounded-lg text-xs font-semibold hover:bg-zinc-700 transition-colors"
+                className="flex-1 bg-[#111113] border border-white/10 text-zinc-300 py-2.5 rounded-xl text-[13px] font-semibold hover:bg-[#18181B] transition-colors active:scale-[0.98]"
               >
                 Cancel
               </button>
               <button
                 onClick={downloadQR}
-                className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-indigo-500 transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-indigo-500/20"
+                className="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-[13px] font-bold hover:bg-emerald-500 transition-colors flex items-center justify-center gap-1.5 shadow-md active:scale-[0.98]"
               >
-                <DownloadIcon className="w-3.5 h-3.5" /> Download
+                <DownloadIcon className="w-4 h-4" /> Download
               </button>
             </div>
           </div>

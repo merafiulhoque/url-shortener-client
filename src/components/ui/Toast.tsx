@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { CheckCircle2, AlertCircle, Info } from "lucide-react";
 
 // ---------- Types ----------
 
@@ -56,7 +57,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const showToast = useCallback(
-    ({ text, bgColor = "#333333", duration = 3000 }: ToastOptions) => {
+    ({ text, bgColor = "default", duration = 3000 }: ToastOptions) => {
       const id = ++idCounter;
       setToasts((prev) => [...prev, { id, text, bgColor, duration }]);
 
@@ -71,7 +72,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div style={containerStyle}>
+      {/* Container */}
+      <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 flex flex-col items-end gap-3 z-[10000] pointer-events-none">
         {toasts.map((toast) => (
           <ToastItemView key={toast.id} toast={toast} onClose={removeToast} />
         ))}
@@ -89,59 +91,34 @@ function ToastItemView({
   toast: ToastItem;
   onClose: (id: number) => void;
 }) {
+  // Map legacy color strings to our premium dark greenery theme classes
+  const isGreen = toast.bgColor === "green" || toast.bgColor.includes("emerald");
+  const isRed = toast.bgColor === "red";
+
+  const themeClasses = isGreen
+    ? "bg-[#09090A] border-emerald-900/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+    : isRed
+    ? "bg-[#09090A] border-red-900/50 shadow-[0_10px_30px_rgba(220,38,38,0.15)]"
+    : "bg-[#09090A] border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
+
+  const Icon = isGreen ? CheckCircle2 : isRed ? AlertCircle : Info;
+  const iconColor = isGreen ? "text-emerald-500" : isRed ? "text-red-500" : "text-zinc-400";
+
   return (
     <div
       role="status"
-      style={{
-        ...toastStyle,
-        backgroundColor: toast.bgColor,
-      }}
       onClick={() => onClose(toast.id)}
+      className={`flex items-start gap-3 w-fit max-w-[320px] sm:max-w-[380px] px-5 py-4 rounded-2xl border backdrop-blur-xl cursor-pointer pointer-events-auto animate-in slide-in-from-bottom-5 fade-in duration-300 relative overflow-hidden group ${themeClasses}`}
     >
-      {toast.text}
+      {/* Subtle Inner Glow */}
+      {isGreen && <div className="absolute top-0 left-0 w-full h-[50px] bg-emerald-500/[0.03] blur-[20px] pointer-events-none z-0" />}
+      {isRed && <div className="absolute top-0 left-0 w-full h-[50px] bg-red-500/[0.03] blur-[20px] pointer-events-none z-0" />}
+      
+      <Icon className={`w-5 h-5 shrink-0 mt-0.5 relative z-10 ${iconColor}`} />
+      
+      <p className="text-[13px] font-medium text-zinc-200 leading-relaxed break-words relative z-10">
+        {toast.text}
+      </p>
     </div>
   );
-}
-
-// ---------- Styles ----------
-
-const containerStyle: React.CSSProperties = {
-  position: "fixed",
-  bottom: "24px",
-  right: "24px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-end",
-  gap: "10px",
-  zIndex: 9999,
-  pointerEvents: "none",
-};
-
-const toastStyle: React.CSSProperties = {
-  display: "inline-block",
-  width: "fit-content",
-  maxWidth: "360px",
-  padding: "10px 16px",
-  borderRadius: "8px",
-  color: "#fff",
-  fontSize: "14px",
-  lineHeight: 1.4,
-  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-  cursor: "pointer",
-  pointerEvents: "auto",
-  animation: "toast-slide-in 0.25s ease-out",
-  wordBreak: "break-word",
-};
-
-// Inject keyframes once
-if (typeof document !== "undefined" && !document.getElementById("toast-keyframes")) {
-  const style = document.createElement("style");
-  style.id = "toast-keyframes";
-  style.textContent = `
-    @keyframes toast-slide-in {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
 }

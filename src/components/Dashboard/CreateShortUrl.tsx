@@ -141,34 +141,42 @@ export default function CreateShortUrlPage() {
   }
 
   return (
-    <div className="h-full w-full overflow-hidden p-2 sm:p-3 flex flex-col items-center justify-center animate-in fade-in duration-500">
-      <div className="w-full max-w-2xl flex flex-col gap-3">
+    <div className="h-full w-full overflow-hidden p-2 sm:p-3 flex flex-col items-center justify-center animate-in fade-in duration-500 relative z-0 selection:bg-emerald-700/30 selection:text-emerald-200">
+      
+      {/* Deep green ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] max-w-2xl h-[400px] bg-emerald-700/[0.04] blur-[150px] rounded-full pointer-events-none z-[-1]" />
+      
+      <div className="w-full max-w-2xl flex flex-col gap-4 relative z-10">
 
         {/* Header */}
-        <div className="space-y-1.5 shrink-0">
+        <div className="space-y-2 shrink-0">
           <div className="flex items-center justify-between">
             <BackButton />
-            <div className="px-2.5 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-full text-[10px] font-mono font-semibold tracking-wider uppercase shadow-inner shadow-indigo-500/5">
+            <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase shadow-inner shadow-emerald-500/5">
               New URL
             </div>
           </div>
 
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 leading-tight">
-              Create Short URL
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white leading-tight">
+              Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">Short URL</span>
             </h1>
-            <p className="text-zinc-400 text-xs md:text-sm mt-0.5">
+            <p className="text-zinc-500 text-xs md:text-sm mt-1">
               Transform your long, complex links into short, shareable URLs.
             </p>
           </div>
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 rounded-2xl p-4 md:p-5 shadow-2xl shadow-black/50">
-          <div className="flex flex-col items-center gap-3">
+        <div className="bg-[#09090A] border border-emerald-900/30 rounded-[24px] p-5 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          
+          {/* Subtle Inner Pattern */}
+          <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#047857_1px,transparent_1px),linear-gradient(to_bottom,#047857_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0"></div>
+
+          <div className="flex flex-col items-center gap-4 relative z-10">
 
             {/* Input Section */}
-            <div className="w-full space-y-3 flex flex-col items-center text-center">
+            <div className="w-full space-y-4 flex flex-col items-center text-center">
               <UrlInput
                 value={newUrl}
                 onChange={setNewUrl}
@@ -179,16 +187,16 @@ export default function CreateShortUrlPage() {
 
               {/* Premium Features: Custom Alias & Password */}
               {user?.isPremium && (
-                <div className="w-full max-w-2xl bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/80 space-y-2.5 text-left">
+                <div className="w-full max-w-2xl bg-[#111113] p-4 rounded-2xl border border-white/5 space-y-4 text-left shadow-inner">
 
                   {/* Custom Alias */}
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-2 text-zinc-300 text-xs font-medium">
-                      <Type className="w-3.5 h-3.5 text-indigo-400" />
-                      Custom Alias <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">Premium</span>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-zinc-300 text-[13px] font-medium">
+                      <Type className="w-4 h-4 text-emerald-500" />
+                      Custom Alias <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase tracking-wider">Premium</span>
                     </label>
-                    <div className="flex items-stretch shadow-inner shadow-black/20 rounded-lg group focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all">
-                      <div className="flex items-center px-3 bg-zinc-900 border border-zinc-800 border-r-0 rounded-l-lg text-zinc-500 text-xs group-focus-within:border-indigo-500/50 group-focus-within:text-zinc-400 transition-colors">
+                    <div className="flex items-stretch shadow-inner shadow-black/40 rounded-xl group focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                      <div className="flex items-center px-4 bg-[#050505] border border-white/10 border-r-0 rounded-l-xl text-zinc-500 text-[13px] group-focus-within:border-emerald-500/50 group-focus-within:text-emerald-500/70 transition-colors">
                         <LinkIcon className="w-3.5 h-3.5 mr-1.5 opacity-50" />
                         domain.com/
                       </div>
@@ -198,25 +206,25 @@ export default function CreateShortUrlPage() {
                         onChange={e => setCustomAlias(e.target.value)}
                         disabled={isLoading}
                         placeholder="my-custom-link"
-                        className="w-full px-3 py-2 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-r-lg text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-indigo-500/50 focus:bg-zinc-900 disabled:opacity-50 text-sm"
+                        className="w-full px-4 py-2.5 bg-[#09090A] border border-white/10 rounded-r-xl text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-emerald-500/50 focus:bg-[#0a0a0c] disabled:opacity-50 text-[13px]"
                       />
                     </div>
                   </div>
 
                   {/* Password Protection */}
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-2 text-zinc-300 text-xs font-medium">
-                      <Lock className="w-3.5 h-3.5 text-indigo-400" />
-                      Password Protection <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">Premium</span>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-zinc-300 text-[13px] font-medium">
+                      <Lock className="w-4 h-4 text-emerald-500" />
+                      Password Protection <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase tracking-wider">Premium</span>
                     </label>
-                    <div className="relative group focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all rounded-lg shadow-inner shadow-black/20">
+                    <div className="relative group focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all rounded-xl shadow-inner shadow-black/40">
                       <input
                         type="password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         disabled={isLoading}
                         placeholder="Leave blank for no password"
-                        className="w-full px-3 py-2 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-lg text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-indigo-500/50 focus:bg-zinc-900 disabled:opacity-50 text-sm"
+                        className="w-full px-4 py-2.5 bg-[#09090A] border border-white/10 rounded-xl text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-emerald-500/50 focus:bg-[#0a0a0c] disabled:opacity-50 text-[13px]"
                       />
                     </div>
                   </div>
@@ -225,8 +233,8 @@ export default function CreateShortUrlPage() {
               )}
 
               {/* Expiration Settings */}
-              <div className="w-full max-w-2xl flex flex-col items-start bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/80">
-                <label className="flex items-center gap-3 cursor-pointer select-none text-zinc-300 text-xs font-medium w-full">
+              <div className="w-full max-w-2xl flex flex-col items-start bg-[#111113] p-4 rounded-2xl border border-white/5 shadow-inner">
+                <label className="flex items-center gap-3 cursor-pointer select-none text-zinc-300 text-[13px] font-medium w-full">
                   <div className="relative flex items-center">
                     <input
                       type="checkbox"
@@ -234,61 +242,61 @@ export default function CreateShortUrlPage() {
                       checked={hasExpiry}
                       onChange={(e) => setHasExpiry(e.target.checked)}
                     />
-                    <div className="w-9 h-[18px] bg-zinc-800 rounded-full peer peer-checked:after:translate-x-[18px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[14px] after:w-[14px] after:transition-all peer-checked:bg-indigo-500 shadow-inner"></div>
+                    <div className="w-9 h-[18px] bg-[#050505] border border-white/10 rounded-full peer peer-checked:after:translate-x-[18px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-zinc-500 peer-checked:after:bg-white after:rounded-full after:h-[14px] after:w-[14px] after:transition-all peer-checked:bg-emerald-600 peer-checked:border-emerald-500 shadow-inner"></div>
                   </div>
                   <span className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                    <Clock className="w-4 h-4 text-zinc-400 peer-checked:text-emerald-500 transition-colors" />
                     Set an expiration limit
                   </span>
                 </label>
 
                 {hasExpiry && (
-                  <div className="w-full mt-2.5 animate-in slide-in-from-top-2 fade-in duration-200 space-y-2.5 border-t border-zinc-800/50 pt-2.5">
+                  <div className="w-full mt-3 animate-in slide-in-from-top-2 fade-in duration-200 space-y-3 border-t border-white/5 pt-3">
 
                     {/* Mode Toggle */}
-                    <div className="flex bg-zinc-900/80 p-0.5 rounded-lg border border-zinc-800 self-start">
+                    <div className="flex bg-[#050505] p-1 rounded-xl border border-white/5 self-start">
                       <button
                         onClick={() => setExpiryMode("duration")}
-                        className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           expiryMode === "duration"
-                            ? "bg-zinc-800 text-white shadow-sm"
-                            : "text-zinc-500 hover:text-zinc-300"
+                            ? "bg-[#18181B] text-white shadow-sm border border-white/5"
+                            : "text-zinc-500 hover:text-zinc-300 border border-transparent"
                         }`}
                       >
-                        <Hourglass className="w-3 h-3" />
+                        <Hourglass className="w-3.5 h-3.5" />
                         Duration
                       </button>
                       <button
                         onClick={() => setExpiryMode("date")}
-                        className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           expiryMode === "date"
-                            ? "bg-zinc-800 text-white shadow-sm"
-                            : "text-zinc-500 hover:text-zinc-300"
+                            ? "bg-[#18181B] text-white shadow-sm border border-white/5"
+                            : "text-zinc-500 hover:text-zinc-300 border border-transparent"
                         }`}
                       >
-                        <Calendar className="w-3 h-3" />
+                        <Calendar className="w-3.5 h-3.5" />
                         Specific Date
                       </button>
                     </div>
 
                     {/* Inputs based on Mode */}
                     {expiryMode === "duration" ? (
-                      <div className="flex items-center gap-2.5 w-full animate-in fade-in zoom-in-95 duration-200">
+                      <div className="flex items-center gap-3 w-full animate-in fade-in zoom-in-95 duration-200">
                         <input
                           type="number"
                           min="1"
                           disabled={isLoading}
                           value={expiryDuration}
                           onChange={(e) => setExpiryDuration(e.target.value ? parseInt(e.target.value) : "")}
-                          className="w-1/2 md:w-28 px-3 py-1.5 bg-zinc-900/80 border border-zinc-700 rounded-lg text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50 text-sm"
+                          className="w-1/2 md:w-28 px-4 py-2 bg-[#09090A] border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:border-emerald-500/50 focus:bg-[#0a0a0c] focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all disabled:opacity-50 text-[13px]"
                           placeholder="e.g. 7"
                         />
-                        <div className="relative w-1/2 md:w-36">
+                        <div className="relative w-1/2 md:w-40">
                           <select
                             value={expiryUnit}
                             disabled={isLoading}
                             onChange={(e) => setExpiryUnit(e.target.value as EXPIRY_UNITS)}
-                            className="w-full px-3 py-1.5 bg-zinc-900/80 border border-zinc-700 rounded-lg text-zinc-100 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer disabled:opacity-50 text-sm"
+                            className="w-full px-4 py-2 bg-[#09090A] border border-white/10 rounded-xl text-white focus:border-emerald-500/50 focus:bg-[#0a0a0c] focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all appearance-none cursor-pointer disabled:opacity-50 text-[13px]"
                           >
                             <option value="" disabled hidden>Select Unit</option>
                             <option value="minutes">Minutes</option>
@@ -296,8 +304,8 @@ export default function CreateShortUrlPage() {
                             <option value="days">Days</option>
                             <option value="months">Months</option>
                           </select>
-                          <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-zinc-400">
-                            <ChevronDown className="w-3.5 h-3.5" />
+                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-zinc-500">
+                            <ChevronDown className="w-4 h-4" />
                           </div>
                         </div>
                       </div>
@@ -309,7 +317,7 @@ export default function CreateShortUrlPage() {
                           value={expiryDate}
                           onChange={(e) => setExpiryDate(e.target.value)}
                           min={new Date().toISOString().slice(0, 16)}
-                          className="w-full px-3 py-1.5 bg-zinc-900/80 border border-zinc-700 rounded-lg text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500/50 focus:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50 [color-scheme:dark] text-sm"
+                          className="w-full px-4 py-2 bg-[#09090A] border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:border-emerald-500/50 focus:bg-[#0a0a0c] focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all disabled:opacity-50 [color-scheme:dark] text-[13px]"
                         />
                       </div>
                     )}
@@ -317,8 +325,8 @@ export default function CreateShortUrlPage() {
                 )}
               </div>
 
-              <p className="text-zinc-500 text-[11px]">
-                Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 text-zinc-300 mx-1 font-sans">Enter</kbd> to shorten instantly
+              <p className="text-zinc-500 text-[11px] font-medium pt-1">
+                Press <kbd className="px-1.5 py-0.5 bg-[#18181B] rounded border border-white/10 text-zinc-300 mx-1 font-sans">Enter</kbd> to shorten instantly
               </p>
             </div>
 
@@ -332,17 +340,17 @@ export default function CreateShortUrlPage() {
             </ActionButton>
 
             {/* Features Grid */}
-            <div className="w-full grid grid-cols-3 gap-2 mt-1 pt-3 border-t border-zinc-800/80">
+            <div className="w-full grid grid-cols-3 gap-3 mt-2 pt-4 border-t border-white/5">
               {[
                 { icon: <Zap className="w-4 h-4" />, label: "Lightning Fast", desc: "Instant redirects" },
                 { icon: <ShieldCheck className="w-4 h-4" />, label: "Secure Links", desc: "HTTPS encryption" },
                 { icon: <BarChart3 className="w-4 h-4" />, label: "Track Metrics", desc: "Monitor clicks" }
               ].map((feature) => (
                 <div key={feature.label} className="flex flex-col items-center text-center group">
-                  <div className="w-8 h-8 mb-1 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 transition-all duration-300 shadow-lg shadow-black/20">
+                  <div className="w-9 h-9 mb-2 bg-[#111113] border border-white/5 rounded-xl flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 transition-all duration-300 shadow-lg shadow-black/40">
                     {feature.icon}
                   </div>
-                  <div className="font-semibold text-zinc-200 text-xs mb-0.5">{feature.label}</div>
+                  <div className="font-semibold text-zinc-200 text-[11px] mb-0.5 tracking-wide">{feature.label}</div>
                   <div className="text-[10px] text-zinc-500">{feature.desc}</div>
                 </div>
               ))}

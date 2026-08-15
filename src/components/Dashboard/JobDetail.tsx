@@ -52,38 +52,44 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
     const canImport = job.status === BulkJobStatus.COMPLETED || job.status === BulkJobStatus.COMPLETED_WITH_ERRORS;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300 selection:bg-emerald-700/30 selection:text-emerald-200">
+            <div className="w-full max-w-lg bg-[#09090A] border border-emerald-900/30 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 relative">
                 
+                {/* Subtle Inner Pattern & Glow */}
+                <div className="absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,#047857_1px,transparent_1px),linear-gradient(to_bottom,#047857_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0"></div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[150px] bg-emerald-500/[0.04] blur-[80px] rounded-full pointer-events-none z-0" />
+
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-zinc-800/80 bg-zinc-900/50">
-                    <h2 className="text-xl font-bold text-zinc-100">Job Details</h2>
-                    <button onClick={onClose} className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-full transition-colors">
+                <div className="relative z-10 flex items-center justify-between p-6 border-b border-white/[0.06]">
+                    <h2 className="text-[20px] font-bold text-white tracking-tight">Job Details</h2>
+                    <button onClick={onClose} className="p-2 text-zinc-500 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-[0.95]">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Body (Details) */}
-                <div className="p-6 space-y-6">
+                <div className="relative z-10 p-6 space-y-6">
                     <div className="flex justify-between items-start gap-4">
-                        <div className="space-y-1">
-                            <span className="text-xs font-mono text-zinc-500 uppercase font-bold tracking-wider">Job ID #{job.id}</span>
-                            <div className="flex items-center gap-2 text-zinc-200">
-                                <FileText className="w-4 h-4 text-indigo-400" />
-                                <span className="font-medium break-all">{job.filePath.split('/').pop() || job.filePath}</span>
+                        <div className="space-y-1.5">
+                            <span className="text-[11px] font-mono text-zinc-500 uppercase font-bold tracking-widest">Job ID #{job.id}</span>
+                            <div className="flex items-center gap-2.5 text-zinc-200">
+                                <div className="p-1.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20 shadow-inner">
+                                    <FileText className="w-4 h-4 text-emerald-500" />
+                                </div>
+                                <span className="font-medium text-[14px] break-all">{job.filePath.split('/').pop() || job.filePath}</span>
                             </div>
                         </div>
                         <JobStatusBadge status={job.status} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800/50">
-                        <div className="space-y-1 text-sm">
-                            <span className="text-zinc-500 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5"/> Created</span>
-                            <p className="text-zinc-200 font-medium">{formatDate(job.createdAt)}</p>
+                    <div className="grid grid-cols-2 gap-4 p-4 bg-[#111113] rounded-2xl border border-white/5 shadow-inner">
+                        <div className="space-y-1.5 text-[13px]">
+                            <span className="text-zinc-500 flex items-center gap-1.5 font-medium"><CalendarDays className="w-3.5 h-3.5"/> Created</span>
+                            <p className="text-zinc-300 font-medium">{formatDate(job.createdAt)}</p>
                         </div>
-                        <div className="space-y-1 text-sm">
-                            <span className="text-zinc-500 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5"/> Updated</span>
-                            <p className="text-zinc-200 font-medium">{formatDate(job.updatedAt)}</p>
+                        <div className="space-y-1.5 text-[13px]">
+                            <span className="text-zinc-500 flex items-center gap-1.5 font-medium"><CalendarDays className="w-3.5 h-3.5"/> Updated</span>
+                            <p className="text-zinc-300 font-medium">{formatDate(job.updatedAt)}</p>
                         </div>
                     </div>
 
@@ -92,7 +98,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                         <button 
                             onClick={() => importMutation.mutate(job.id)}
                             disabled={importMutation.isPending || !canImport}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-500 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 disabled:shadow-none disabled:cursor-not-allowed"
+                            className="w-full h-12 flex items-center justify-center gap-2 px-4 bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 disabled:from-[#111113] disabled:to-[#111113] disabled:border disabled:border-white/5 disabled:text-zinc-500 rounded-xl font-bold text-white shadow-[0_4px_15px_rgba(16,185,129,0.2)] disabled:shadow-none transition-all duration-300 disabled:cursor-not-allowed active:scale-[0.98] disabled:active:scale-100"
                         >
                             {importMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
                             Import URLs to Dashboard
@@ -101,9 +107,9 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                         <button 
                             onClick={() => downloadMutation.mutate(job.id)}
                             disabled={downloadMutation.isPending}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-zinc-300 transition-all duration-300"
+                            className="w-full h-12 flex items-center justify-center gap-2 px-4 bg-[#111113] hover:bg-[#18181B] border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-zinc-300 transition-all duration-300 active:scale-[0.98] disabled:active:scale-100"
                         >
-                            {downloadMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4 text-rose-400" />}
+                            {downloadMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4 text-red-400" />}
                             Download Error Log
                         </button>
                     </div>

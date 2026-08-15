@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     try {
+        console.log("API ROUTE CALLED")
         const loginData: LoginData = await req.json()
         const response = await fetch(API_URLS.SIGNIN, {
             method: "POST",
